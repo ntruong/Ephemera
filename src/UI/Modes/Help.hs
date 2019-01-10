@@ -44,32 +44,21 @@ render = const [helpMenu]
 
 helpMenu :: B.Widget ()
 helpMenu =
-  let inputs = B.str <$> [ "?"
-                         , "h"
-                         , "j"
-                         , "k"
-                         , "l"
-                         , "c"
-                         , "i"
-                         , "@"
-                         , "Space"
-                         , "u"
-                         , "Esc"
-                         , "q"
-                         ]
-      actions = B.str <$> [ "Show this help menu"
-                          , "Move left (higher)"
-                          , "Move down"
-                          , "Move up"
-                          , "Move right (deeper)"
-                          , "Edit the name"
-                          , "Edit the description"
-                          , "Edit the date"
-                          , "Toggle status"
-                          , "Undo"
-                          , "Normal mode"
-                          , "Quit"
-                          ]
+  let doc = [ ("?"     , "Show this help menu" )
+            , ("h"     , "Move left (higher)"  )
+            , ("j"     , "Move down"           )
+            , ("k"     , "Move up"             )
+            , ("l"     , "Move right (deeper)" )
+            , ("c"     , "Edit the name"       )
+            , ("i"     , "Edit the description")
+            , ("@"     , "Edit the date"       )
+            , ("Space" , "Toggle status"       )
+            , ("u"     , "Undo"                )
+            , ("Esc"   , "Normal mode"         )
+            , ("q"     , "Quit"                )
+            ]
+      inputs = (B.str . fst) <$> doc
+      actions = (B.str . snd) <$> doc
       label = B.withAttr (B.attrName "title") (B.str "Controls")
       menu =
         ( B.padRight B.Max
