@@ -2,7 +2,6 @@ module Core.Zipper
   ( Zipper(..)
   , Ctx(..)
   , focus
-  , focusParent
   , up
   , down
   , left
@@ -25,12 +24,6 @@ data Zipper a = Zipper (Tree a) (Ctx a)
 -- | Get the root of the focused tree of a given zipper.
 focus :: Zipper a -> Tree a
 focus (Zipper a _) = a
-
--- | Get the parent of the focused tree of a given zipper. Fails when the root
--- element is focused.
-focusParent :: Zipper a -> Maybe a
-focusParent (Zipper _ Root) = Nothing
-focusParent (Zipper _ (Path _ a _ _)) = Just a
 
 -- | Move "up" from the focus. Fails when the root element is focused.
 up :: Zipper a -> Maybe (Zipper a)
