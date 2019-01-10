@@ -53,7 +53,7 @@ handle s@(State z _ prev) (B.VtyEvent e) = case e of
       Just z' -> B.continue (State z' Normal prev)
       Nothing -> B.continue s -- TODO(ntruong): show error msg?
     -- Edit the focus' name.
-    V.KChar 'c' ->
+    V.KChar 'I' ->
       let ed = B.editorText () Nothing ((name . root . focus) z)
       in  B.continue (State z (Pending Name ed) (Just s))
     -- Edit the focus' description.
@@ -66,6 +66,10 @@ handle s@(State z _ prev) (B.VtyEvent e) = case e of
             Just dt -> B.editorText () Nothing dt
             Nothing -> B.editorText () Nothing T.empty
       in  B.continue (State z (Pending Date ed) (Just s))
+    -- Add empty note before the focused child.
+    V.KChar 'o' ->
+      let z' = modify (tInsLeft (Leaf empty)) z
+      in  B.continue (State z' Normal (Just s))
     -- Add empty note after the focused child.
     V.KChar 'o' ->
       let z' = modify (tInsRight (Leaf empty)) z
