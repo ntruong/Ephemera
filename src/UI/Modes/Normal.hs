@@ -106,7 +106,8 @@ render (State z _ _) = [B.hLimit 80 note']
     desc' = B.txt (desc note)
     children = case node of
       Leaf _ -> B.emptyWidget
-      Branch _ lNodes fNode rNodes -> B.vBox (makeTitleRoot <$> lNodes)
+      Branch _ lNodes fNode rNodes ->
+        B.vBox (makeTitleRoot <$> (reverse lNodes))
         B.<=> (B.withAttr (B.attrName "title") . makeTitleRoot) fNode
         B.<=> B.vBox (makeTitleRoot <$> rNodes)
       where
