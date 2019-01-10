@@ -3,10 +3,11 @@ module Core.Types
   , Mode(..)
   , Field(..)
   , Note(..)
+  , empty
   ) where
 
 import qualified Brick.Widgets.Edit as B (Editor)
-import qualified Data.Text as T (Text)
+import qualified Data.Text as T (Text, empty)
 import Core.Zipper
 
 -- | Represent the state of application. We use a zipper of notes, the current
@@ -31,3 +32,7 @@ data Note = Note
   , date :: Maybe T.Text -- TODO(ntruong): change this to Data.DateTime
   , status :: Bool
   }
+
+-- | An empty note.
+empty :: Note
+empty = Note T.empty T.empty Nothing False

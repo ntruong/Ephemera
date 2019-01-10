@@ -3,6 +3,8 @@ module Core.Tree
   , root
   , tLeft
   , tRight
+  , tInsLeft
+  , tInsRight
   ) where
 
 -- | Trees consist of either terminal (Leaf) nodes or parent (Branch) nodes that
@@ -35,6 +37,16 @@ tLeft (Branch a (l:lSibs) focused rSibs) = Just $
 -- was last focused.
 tRight :: Tree a -> Maybe (Tree a)
 tRight (Leaf _) = Nothing
-tRight (Branch _ [] _ _) = Nothing
+tRight (Branch _ _ _ []) = Nothing
 tRight (Branch a lSibs focused (r:rSibs)) = Just $
   Branch a (focused:lSibs) r rSibs
+
+-- | Insert a subtree "left" of the last focused child and focus it.
+tInsLeft :: Tree a -> Tree a -> Tree a
+tInsLeft t (Leaf a) = Branch a [] t []
+tInsLeft t (Branch a lSibs focused rSibs) = Branch a lSibs t (focused:rSibs)
+
+-- | Insert a subtree "right" of the last focused child and focus it.
+tInsRight :: Tree a -> Tree a -> Tree a
+tInsRight t (Leaf a) = Branch a [] t []
+tInsRight t (Branch a lSibs focused rSibs) = Branch a (focused:lSibs) t rSibs

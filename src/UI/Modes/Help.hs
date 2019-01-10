@@ -52,6 +52,7 @@ helpMenu =
             , ("c"     , "Edit the name"       )
             , ("i"     , "Edit the description")
             , ("@"     , "Edit the date"       )
+            , ("o"     , "Add task below"      )
             , ("Space" , "Toggle status"       )
             , ("u"     , "Undo"                )
             , ("Esc"   , "Normal mode"         )

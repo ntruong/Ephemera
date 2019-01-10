@@ -28,7 +28,7 @@ import qualified Brick.Widgets.Edit as B (editorText)
 import qualified Data.Text as T (cons, empty)
 import qualified Graphics.Vty.Input.Events as V (Event(..), Key(..))
 import Core.Tree
-import Core.Types (Field(..), Mode(..), Note(..), State(..))
+import Core.Types (Field(..), Mode(..), Note(..), State(..), empty)
 import Core.Zipper
 
 handle :: State -> B.BrickEvent () e -> B.EventM () (B.Next State)
@@ -66,6 +66,10 @@ handle s@(State z _ prev) (B.VtyEvent e) = case e of
             Just dt -> B.editorText () Nothing dt
             Nothing -> B.editorText () Nothing T.empty
       in  B.continue (State z (Pending Date ed) (Just s))
+    -- Add empty note after the focused child.
+    V.KChar 'o' ->
+      let z' = modify (tInsRight (Leaf empty)) z
+      in  B.continue (State z' Normal (Just s))
     -- Toggle the focus' status.
     V.KChar ' ' ->
       B.continue (State (modify (fmap toggle) z) Normal (Just s))
@@ -92,11 +96,11 @@ render (State z _ _) = [B.hLimit 80 note']
       B.<+> (B.padRight B.Max name')
       B.<+> date'
       where
-        name' = B.withAttr (B.attrName "title") $ B.txt (name note)
-        date' = case date note of
+        name' = B.withAttr (B.attrName "title") $ B.txt (name n)
+        date' = case date n of
           Just x -> B.txt (T.cons '@' x)
           Nothing -> B.emptyWidget
-        status' = case status note of
+        status' = case status n of
           True -> B.str "[✓]"
           False -> B.str "[ ]"
     desc' = B.txt (desc note)
