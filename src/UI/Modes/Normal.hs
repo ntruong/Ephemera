@@ -115,7 +115,7 @@ render (State z _ _) = [B.hLimit 80 note']
       B.<+> (B.padRight B.Max name')
       B.<+> date'
       where
-        name' = B.withAttr (B.attrName "title") $ B.txt (name n)
+        name' = B.txt (name n)
         date' = case date n of
           Just x -> B.txt (T.cons '@' x)
           Nothing -> B.emptyWidget
@@ -131,7 +131,10 @@ render (State z _ _) = [B.hLimit 80 note']
         B.<=> B.vBox (makeTitleRoot <$> rNodes)
       where
         makeTitleRoot = makeTitle . root
-    note' = B.vBox [ B.padBottom (B.Pad 1) $ makeTitle note
+    note' = B.vBox [ ( B.padBottom (B.Pad 1)
+                     . B.withAttr (B.attrName "title")
+                     . makeTitle
+                     ) note
                    , B.padBottom (B.Pad 1) desc'
                    , children
                    ]
