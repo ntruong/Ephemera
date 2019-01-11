@@ -49,6 +49,8 @@ helpMenu =
             , ("j"     , "Move down"           )
             , ("k"     , "Move up"             )
             , ("l"     , "Move right (deeper)" )
+            , ("g"     , "Move to top"         )
+            , ("G"     , "Move to bottom"      )
             , ("I"     , "Edit the name"       )
             , ("i"     , "Edit the description")
             , ("@"     , "Edit the date"       )

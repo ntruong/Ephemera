@@ -54,6 +54,14 @@ handle s@(State z _ prev) (B.VtyEvent e) = case e of
     V.KChar 'l' -> case down z of
       Just z' -> B.continue (State z' Normal prev)
       Nothing -> B.continue s -- TODO(ntruong): show error msg?
+    -- Go to the leftmost child of the focus.
+    V.KChar 'g' -> case modifyM tLeftmost z of
+      Just z' -> B.continue (State z' Normal prev)
+      Nothing -> B.continue s
+    -- Go to the rightmost child of the focus.
+    V.KChar 'G' -> case modifyM tRightmost z of
+      Just z' -> B.continue (State z' Normal prev)
+      Nothing -> B.continue s
     -- Edit the focus' name.
     V.KChar 'I' ->
       let ed = B.editorText () Nothing ((name . root . focus) z)

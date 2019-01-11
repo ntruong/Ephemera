@@ -6,6 +6,8 @@ module Core.Tree
   , tInsLeft
   , tInsRight
   , tDelete
+  , tLeftmost
+  , tRightmost
   ) where
 
 -- | Trees consist of either terminal (Leaf) nodes or parent (Branch) nodes that
@@ -58,3 +60,21 @@ tDelete (Leaf _) = Nothing
 tDelete (Branch a [] _ []) = Just (Leaf a)
 tDelete (Branch a (l:lSibs) _ []) = Just (Branch a lSibs l [])
 tDelete (Branch a lSibs _ (r:rSibs)) = Just (Branch a lSibs r rSibs)
+
+-- | Focus the leftmost child of a tree, if possible.
+tLeftmost :: Tree a -> Maybe (Tree a)
+tLeftmost (Leaf _) = Nothing
+tLeftmost (Branch _ [] _ _) = Nothing
+tLeftmost (Branch a lSibs focused rSibs) =
+  let focused' = last lSibs
+      rSibs' = ((reverse . init) lSibs) ++ [focused] ++ rSibs
+  in  Just (Branch a [] focused' rSibs')
+
+-- | Focus the rightmost child of a tree, if possible.
+tRightmost :: Tree a -> Maybe (Tree a)
+tRightmost (Leaf _) = Nothing
+tRightmost (Branch _ _ _ []) = Nothing
+tRightmost (Branch a lSibs focused rSibs) =
+  let focused' = last rSibs
+      lSibs' = ((reverse . init) rSibs) ++ [focused] ++ lSibs
+  in  Just (Branch a lSibs' focused' [])
