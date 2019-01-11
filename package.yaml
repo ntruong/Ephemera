@@ -21,7 +21,9 @@ description:         Please see the README on GitHub at <https://github.com/ntru
 
 dependencies:
 - base <= 5
+- aeson
 - brick
+- bytestring
 - text
 - vty
 
