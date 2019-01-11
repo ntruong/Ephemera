@@ -3,6 +3,7 @@ module Core.Types
   , Mode(..)
   , Field(..)
   , Note(..)
+  , createState
   , empty
   ) where
 
@@ -32,6 +33,10 @@ data Note = Note
   , date :: Maybe T.Text -- TODO(ntruong): change this to Data.DateTime
   , status :: Bool
   }
+
+-- | Creates a starting state from a given zipper.
+createState :: Zipper Note -> State
+createState z = State z Normal Nothing
 
 -- | An empty note.
 empty :: Note

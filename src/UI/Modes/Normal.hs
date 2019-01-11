@@ -3,6 +3,7 @@ module UI.Modes.Normal
   , render
   ) where
 
+import qualified Control.Monad.IO.Class as M (liftIO)
 import qualified Brick.AttrMap as B (attrName)
 import qualified Brick.Main as B (continue, halt)
 import qualified Brick.Types as B
@@ -30,6 +31,7 @@ import qualified Graphics.Vty.Input.Events as V (Event(..), Key(..))
 import Core.Tree
 import Core.Types (Field(..), Mode(..), Note(..), State(..), empty)
 import Core.Zipper
+import IO.Data (encode)
 
 handle :: State -> B.BrickEvent () e -> B.EventM () (B.Next State)
 handle s@(State z _ prev) (B.VtyEvent e) = case e of
@@ -82,7 +84,9 @@ handle s@(State z _ prev) (B.VtyEvent e) = case e of
       Just s' -> B.continue s'
       Nothing -> B.continue s
     -- Quit.
-    V.KChar 'q' -> B.halt s
+    V.KChar 'q' -> do
+      M.liftIO (encode z)
+      B.halt s
     -- Base case.
     _ -> B.continue s
   _ -> B.continue s

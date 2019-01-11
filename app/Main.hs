@@ -4,24 +4,21 @@ import qualified Brick.Main as B (App(..), defaultMain, showFirstCursor)
 import qualified Brick.Themes as B (themeToAttrMap)
 import qualified Brick.Widgets.Edit as B (editorText)
 import qualified Data.Text as T (empty, pack)
-import Core.Tree
-import Core.Types
-import Core.Zipper
-import UI.Handle
-import UI.Render
-import UI.Theme
+import Core.Types (State, createState)
+import IO.Data (decode)
+import UI.Handle (handle)
+import UI.Render (render)
+import UI.Theme (theme)
 
 main :: IO State
-main = B.defaultMain app s
-  where
-    app = B.App {
-      B.appDraw = render
-    , B.appChooseCursor = B.showFirstCursor
-    , B.appHandleEvent = handle
-    , B.appStartEvent = return
-    , B.appAttrMap = (const . B.themeToAttrMap) theme
-    }
-    n = Note (T.pack "Ephemera") (T.pack "𝔈𝔭𝔥𝔢𝔪𝔢𝔯𝔞") Nothing False
-    -- z = Zipper (Leaf n) (Path Root n [] [])
-    z = Zipper (Leaf n) Root
-    s = State z Normal Nothing
+main = do
+  z <- decode
+  let s = createState z
+      app = B.App {
+        B.appDraw = render
+      , B.appChooseCursor = B.showFirstCursor
+      , B.appHandleEvent = handle
+      , B.appStartEvent = return
+      , B.appAttrMap = (const . B.themeToAttrMap) theme
+      }
+  B.defaultMain app s
