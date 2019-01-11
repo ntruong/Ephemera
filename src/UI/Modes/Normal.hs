@@ -90,7 +90,8 @@ handle s@(State z _ prev) (B.VtyEvent e) = case e of
       Nothing -> B.continue s
     -- Toggle the focus' status.
     V.KChar ' ' ->
-      B.continue (State (modify (fmap toggle) z) Normal (Just s))
+      let toggle (Note nm de dt st) = Note nm de dt (not st)
+      in  B.continue (State (modifyA toggle z) Normal (Just s))
     -- Undo the last modification.
     V.KChar 'u' -> case prev of
       Just s' -> B.continue s'
@@ -102,8 +103,6 @@ handle s@(State z _ prev) (B.VtyEvent e) = case e of
     -- Base case.
     _ -> B.continue s
   _ -> B.continue s
-  where
-    toggle (Note nm de dt st) = Note nm de dt (not st)
 handle s _ = B.continue s
 
 render :: State -> [B.Widget ()]
