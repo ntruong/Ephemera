@@ -76,6 +76,10 @@ handle s@(State z _ prev) (B.VtyEvent e) = case e of
     V.KChar 'o' ->
       let z' = modify (tInsRight (Leaf empty)) z
       in  B.continue (State z' Normal (Just s))
+    -- Delete the focused child.
+    V.KChar 'd' -> case modifyM tDelete z of
+      Just z' -> B.continue (State z' Normal (Just s))
+      Nothing -> B.continue s
     -- Toggle the focus' status.
     V.KChar ' ' ->
       B.continue (State (modify (fmap toggle) z) Normal (Just s))

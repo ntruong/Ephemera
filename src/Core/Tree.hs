@@ -5,6 +5,7 @@ module Core.Tree
   , tRight
   , tInsLeft
   , tInsRight
+  , tDelete
   ) where
 
 -- | Trees consist of either terminal (Leaf) nodes or parent (Branch) nodes that
@@ -50,3 +51,10 @@ tInsLeft t (Branch a lSibs focused rSibs) = Branch a lSibs t (focused:rSibs)
 tInsRight :: Tree a -> Tree a -> Tree a
 tInsRight t (Leaf a) = Branch a [] t []
 tInsRight t (Branch a lSibs focused rSibs) = Branch a (focused:lSibs) t rSibs
+
+-- | Delete the focused child of a tree, if possible.
+tDelete :: Tree a -> Maybe (Tree a)
+tDelete (Leaf _) = Nothing
+tDelete (Branch a [] _ []) = Just (Leaf a)
+tDelete (Branch a (l:lSibs) _ []) = Just (Branch a lSibs l [])
+tDelete (Branch a lSibs _ (r:rSibs)) = Just (Branch a lSibs r rSibs)

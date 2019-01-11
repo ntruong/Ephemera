@@ -54,6 +54,7 @@ helpMenu =
             , ("@"     , "Edit the date"       )
             , ("O"     , "Add task above"      )
             , ("o"     , "Add task below"      )
+            , ("d"     , "Delete"              )
             , ("Space" , "Toggle status"       )
             , ("u"     , "Undo"                )
             , ("Esc"   , "Normal mode"         )
