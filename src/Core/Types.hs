@@ -8,7 +8,7 @@ module Core.Types
 
 import qualified Brick.Widgets.Edit as B (Editor)
 import qualified Data.Text as T (Text, empty)
-import Core.Zipper
+import Core.Zipper (Zipper)
 
 -- | Represent the state of application. We use a zipper of notes, the current
 -- mode of the application, an editor (for text interaction with the user), and

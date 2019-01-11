@@ -3,7 +3,6 @@ module UI.Render
   ) where
 
 import qualified Brick.Types as B (Widget)
-
 import Core.Types (Mode(..), State(..))
 import qualified UI.Modes.Help as H
 import qualified UI.Modes.Normal as N

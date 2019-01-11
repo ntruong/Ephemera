@@ -3,7 +3,6 @@ module UI.Handle
   ) where
 
 import qualified Brick.Types as B (BrickEvent, EventM, Next)
-
 import Core.Types (Mode(..), State(..))
 import qualified UI.Modes.Help as H
 import qualified UI.Modes.Normal as N

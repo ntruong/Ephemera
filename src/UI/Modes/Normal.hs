@@ -67,7 +67,7 @@ handle s@(State z _ prev) (B.VtyEvent e) = case e of
             Nothing -> B.editorText () Nothing T.empty
       in  B.continue (State z (Pending Date ed) (Just s))
     -- Add empty note before the focused child.
-    V.KChar 'o' ->
+    V.KChar 'O' ->
       let z' = modify (tInsLeft (Leaf empty)) z
       in  B.continue (State z' Normal (Just s))
     -- Add empty note after the focused child.
