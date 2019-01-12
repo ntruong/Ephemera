@@ -43,11 +43,11 @@ handle s (B.VtyEvent e) = case e of
     _ -> do
       ed' <- B.handleEditorEvent e ed
       let txt = (joinText . B.getEditContents) ed'
-          (Note nm de dt st) = (root . focus) z
+          (Note nm de dt st pr) = (root . focus) z
           note = case fld of
-            Name -> Note txt de dt st
-            Desc -> Note nm txt dt st
-            Date -> Note nm de (Just txt) st
+            Name -> Note txt de dt st pr
+            Desc -> Note nm txt dt st pr
+            Date -> Note nm de (Just txt) st pr
           z' = modifyA (const note) z
       B.continue (State z' (Pending fld ed') p)
     where
@@ -69,11 +69,13 @@ render s =
         Desc -> ((B.txt . name) note, txt, (renderDate . date) note)
         Date -> ((B.txt . name) note, (B.txt . desc) note, txt)
       status' = (renderStatus . status) note
+      priority' = (renderPriority . priority) note
       children =
-        let f = (B.withAttr (B.attrName "title")) . renderTitle
+        let f = (B.withAttr (B.attrName "focus")) . renderTitle
         in  renderChildren renderTitle f node
       title = B.padRight (B.Pad 1) status'
-              B.<+> (B.padRight B.Max name')
+              B.<+> B.padRight (B.Pad 1) name'
+              B.<+> (B.padRight B.Max priority')
               B.<+> date'
       note' = B.vBox [ ( B.padBottom (B.Pad 1)
                        . B.withAttr (B.attrName "title")

@@ -57,6 +57,8 @@ helpMenu =
             , ("I"     , "Edit the name"       )
             , ("i"     , "Edit the description")
             , ("@"     , "Edit the date"       )
+            , ("-"     , "Lower priority"      )
+            , ("+"     , "Higher priority"     )
             , ("O"     , "Add task above"      )
             , ("o"     , "Add task below"      )
             , ("d"     , "Delete"              )

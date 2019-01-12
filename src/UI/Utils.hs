@@ -2,6 +2,7 @@ module UI.Utils where
 
 import qualified Data.Text as T (Text, cons, intercalate, pack)
 import qualified Data.Text.Zipper as T (getLineLimit, lineLengths, moveCursor)
+import qualified Brick.AttrMap as B (attrName)
 import qualified Brick.Types as B (Padding(..), Widget)
 import qualified Brick.Widgets.Core as B
   ( (<+>)
@@ -11,10 +12,11 @@ import qualified Brick.Widgets.Core as B
   , str
   , txt
   , vBox
+  , withAttr
   )
 import qualified Brick.Widgets.Edit as B (Editor, applyEdit)
 import Core.Tree (Tree(..), root)
-import Core.Types (Note(..))
+import Core.Types (Note(..), Priority(..))
 
 -- | Move a text editor to the last possible character.
 lastEdit :: B.Editor T.Text n -> B.Editor T.Text n
@@ -34,8 +36,10 @@ renderTitle note =
   let n = B.txt (name note)
       d = (renderDate . date) note
       s = (renderStatus . status) note
+      p = (renderPriority . priority) note
   in  B.padRight (B.Pad 1) s
-      B.<+> (B.padRight B.Max n)
+      B.<+> B.padRight (B.Pad 1) n
+      B.<+> (B.padRight B.Max p)
       B.<+> d
 
 -- | Render a Tree's children, given rendering functions.
@@ -60,3 +64,10 @@ renderDate Nothing  = B.emptyWidget
 renderStatus :: Bool -> B.Widget n
 renderStatus True  = B.str "[✓]"
 renderStatus False = B.str "[ ]"
+
+-- | Render a priority as colored digraphs.
+renderPriority :: Priority -> B.Widget n
+renderPriority None = B.str " " -- B.emptyWidget shrinks padding for some reason
+renderPriority Low  = (B.withAttr (B.attrName "low") . B.str) "●"
+renderPriority Mid  = (B.withAttr (B.attrName "mid") . B.str) "●"
+renderPriority High = (B.withAttr (B.attrName "high") . B.str) "●"

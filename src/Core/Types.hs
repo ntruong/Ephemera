@@ -3,6 +3,7 @@ module Core.Types
   , Mode(..)
   , Field(..)
   , Note(..)
+  , Priority(..)
   , createState
   , empty
   ) where
@@ -36,7 +37,15 @@ data Note = Note
   , desc :: T.Text
   , date :: Maybe T.Text -- TODO(ntruong): change this to Data.DateTime
   , status :: Bool
+  , priority :: Priority
   }
+
+-- | Priority for a note.
+data Priority = None
+              | Low
+              | Mid
+              | High
+              deriving (Enum, Eq, Ord)
 
 -- | Creates a starting state from a given zipper.
 createState :: Zipper Note -> State
@@ -44,4 +53,4 @@ createState z = State z Normal Nothing
 
 -- | An empty note.
 empty :: Note
-empty = Note T.empty T.empty Nothing False
+empty = Note T.empty T.empty Nothing False None

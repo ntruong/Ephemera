@@ -23,5 +23,8 @@ theme =
   let attrs = [ (B.attrName "title",   B.fg V.cyan)
               , (B.attrName "special", B.fg V.magenta)
               , (B.attrName "focus",   B.fg V.magenta)
+              , (B.attrName "low",     B.fg V.green)
+              , (B.attrName "mid",     B.fg V.yellow)
+              , (B.attrName "high",    B.fg V.red)
               ]
   in B.newTheme (V.white `B.on` V.black) attrs

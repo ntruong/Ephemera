@@ -26,7 +26,14 @@ import qualified Brick.Widgets.Core as B
 import qualified Brick.Widgets.Edit as B (editorText)
 import qualified Graphics.Vty.Input.Events as V (Event(..), Key(..))
 import Core.Tree
-import Core.Types (Field(..), Mode(..), Note(..), State(..), empty)
+import Core.Types
+  (Field(..)
+  , Mode(..)
+  , Note(..)
+  , Priority(..)
+  , State(..)
+  , empty
+  )
 import Core.Zipper
 import IO.Data (encode)
 import UI.Utils
@@ -74,6 +81,20 @@ handle s (B.VtyEvent e) = case e of
             Just dt -> lastEdit $ B.editorText () (Just 1) dt
             Nothing -> lastEdit $ B.editorText () (Just 1) T.empty
       in  B.continue (State z (Pending Date ed) (Just s))
+    -- Decrement the focus' priority.
+    V.KChar '-' ->
+      let decr pr = case pr of
+                      None -> None
+                      _   -> pred pr
+          f (Note nm de dt st pr) = Note nm de dt st (decr pr)
+      in  B.continue (State (modifyA f z) Normal (Just s))
+    -- Increment the focus' priority.
+    V.KChar '+' ->
+      let incr pr = case pr of
+                      High -> High
+                      _   -> succ pr
+          f (Note nm de dt st pr) = Note nm de dt st (incr pr)
+      in  B.continue (State (modifyA f z) Normal (Just s))
     -- Add empty note before the focused child.
     V.KChar 'O' ->
       let z' = modify (tInsLeft (Leaf empty)) z
@@ -88,8 +109,8 @@ handle s (B.VtyEvent e) = case e of
       Nothing -> B.continue s
     -- Toggle the focus' status.
     V.KChar ' ' ->
-      let toggle (Note nm de dt st) = Note nm de dt (not st)
-      in  B.continue (State (modifyA toggle z) Normal (Just s))
+      let f (Note nm de dt st pr) = Note nm de dt (not st) pr
+      in  B.continue (State (modifyA f z) Normal (Just s))
     -- Undo the last modification.
     V.KChar 'u' -> case p of
       Just s' -> B.continue s'
