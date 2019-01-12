@@ -16,11 +16,8 @@ import qualified Brick.Types as B
 import qualified Brick.Widgets.Core as B
   ( (<+>)
   , (<=>)
-  , emptyWidget
   , hLimit
   , padBottom
-  , padRight
-  , str
   , txt
   , vBox
   , withAttr
@@ -32,6 +29,7 @@ import Core.Tree
 import Core.Types (Field(..), Mode(..), Note(..), State(..), empty)
 import Core.Zipper
 import IO.Data (encode)
+import UI.Utils
 
 handle :: State -> B.BrickEvent () e -> B.EventM () (B.Next State)
 handle s (B.VtyEvent e) = case e of
@@ -64,17 +62,17 @@ handle s (B.VtyEvent e) = case e of
       Nothing -> B.continue s
     -- Edit the focus' name.
     V.KChar 'I' ->
-      let ed = B.editorText () Nothing ((name . root . focus) z)
+      let ed = B.editorText () (Just 1) ((name . root . focus) z)
       in  B.continue (State z (Pending Name ed) (Just s))
     -- Edit the focus' description.
     V.KChar 'i' ->
-      let ed = B.editorText () Nothing ((desc . root . focus) z)
+      let ed = B.editorText () (Just 10) ((desc . root . focus) z)
       in  B.continue (State z (Pending Desc ed) (Just s))
     -- Edit the focus' description.
     V.KChar '@' ->
       let ed = case (date . root . focus) z of
-            Just dt -> B.editorText () Nothing dt
-            Nothing -> B.editorText () Nothing T.empty
+            Just dt -> B.editorText () (Just 1) dt
+            Nothing -> B.editorText () (Just 1) T.empty
       in  B.continue (State z (Pending Date ed) (Just s))
     -- Add empty note before the focused child.
     V.KChar 'O' ->
@@ -109,35 +107,18 @@ handle s (B.VtyEvent e) = case e of
 handle s _ = B.continue s
 
 render :: State -> [B.Widget ()]
-render s = [B.hLimit 80 note']
-  where
-    node = (focus . zipper) s
-    note = root node
-    makeTitle :: Note -> B.Widget n
-    makeTitle n = B.padRight (B.Pad 1) status'
-      B.<+> (B.padRight B.Max name')
-      B.<+> date'
-      where
-        name' = B.txt (name n)
-        date' = case date n of
-          Just x -> B.txt (T.cons '@' x)
-          Nothing -> B.emptyWidget
-        status' = case status n of
-          True -> B.str "[✓]"
-          False -> B.str "[ ]"
-    desc' = B.txt (desc note)
-    children = case node of
-      Leaf _ -> B.emptyWidget
-      Branch _ lNodes fNode rNodes ->
-        B.vBox (makeTitleRoot <$> (reverse lNodes))
-        B.<=> (B.withAttr (B.attrName "title") . makeTitleRoot) fNode
-        B.<=> B.vBox (makeTitleRoot <$> rNodes)
-      where
-        makeTitleRoot = makeTitle . root
-    note' = B.vBox [ ( B.padBottom (B.Pad 1)
-                     . B.withAttr (B.attrName "title")
-                     . makeTitle
-                     ) note
-                   , B.padBottom (B.Pad 1) desc'
-                   , children
-                   ]
+render s =
+  let node = (focus . zipper) s
+      note = root node
+      desc' = B.txt (desc note)
+      children =
+        let f = (B.withAttr (B.attrName "title")) . renderTitle
+        in  renderChildren renderTitle f node
+      note' = B.vBox [ ( B.padBottom (B.Pad 1)
+                       . B.withAttr (B.attrName "title")
+                       . renderTitle
+                       ) note
+                     , B.padBottom (B.Pad 1) desc'
+                     , children
+                     ]
+  in  [B.hLimit 80 note']
