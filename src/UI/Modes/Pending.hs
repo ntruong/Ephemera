@@ -3,6 +3,7 @@ module UI.Modes.Pending
   , render
   ) where
 
+import qualified Data.Text as T (Text, intercalate, pack)
 import qualified Brick.AttrMap as B (attrName)
 import qualified Brick.Main as B (continue, halt)
 import qualified Brick.Types as B
@@ -28,7 +29,6 @@ import qualified Brick.Widgets.Edit as B
   , handleEditorEvent
   , renderEditor
   )
-import qualified Data.Text as T (Text, intercalate, pack)
 import qualified Graphics.Vty.Input.Events as V (Event(..), Key(..))
 import Core.Tree (root)
 import Core.Types (Field(..), Mode(..), Note(..), State(..))

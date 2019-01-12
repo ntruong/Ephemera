@@ -4,6 +4,7 @@ module UI.Modes.Normal
   ) where
 
 import qualified Control.Monad.IO.Class as M (liftIO)
+import qualified Data.Text as T (cons, empty)
 import qualified Brick.AttrMap as B (attrName)
 import qualified Brick.Main as B (continue, halt)
 import qualified Brick.Types as B
@@ -23,7 +24,6 @@ import qualified Brick.Widgets.Core as B
   , withAttr
   )
 import qualified Brick.Widgets.Edit as B (editorText)
-import qualified Data.Text as T (cons, empty)
 import qualified Graphics.Vty.Input.Events as V (Event(..), Key(..))
 import Core.Tree
 import Core.Types (Field(..), Mode(..), Note(..), State(..), empty)
