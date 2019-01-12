@@ -62,17 +62,17 @@ handle s (B.VtyEvent e) = case e of
       Nothing -> B.continue s
     -- Edit the focus' name.
     V.KChar 'I' ->
-      let ed = B.editorText () (Just 1) ((name . root . focus) z)
+      let ed = lastEdit $ B.editorText () (Just 1) ((name . root . focus) z)
       in  B.continue (State z (Pending Name ed) (Just s))
     -- Edit the focus' description.
     V.KChar 'i' ->
-      let ed = B.editorText () (Just 10) ((desc . root . focus) z)
+      let ed = lastEdit $ B.editorText () (Just 10) ((desc . root . focus) z)
       in  B.continue (State z (Pending Desc ed) (Just s))
     -- Edit the focus' description.
     V.KChar '@' ->
       let ed = case (date . root . focus) z of
-            Just dt -> B.editorText () (Just 1) dt
-            Nothing -> B.editorText () (Just 1) T.empty
+            Just dt -> lastEdit $ B.editorText () (Just 1) dt
+            Nothing -> lastEdit $ B.editorText () (Just 1) T.empty
       in  B.continue (State z (Pending Date ed) (Just s))
     -- Add empty note before the focused child.
     V.KChar 'O' ->

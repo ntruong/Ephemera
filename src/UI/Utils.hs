@@ -1,6 +1,7 @@
 module UI.Utils where
 
 import qualified Data.Text as T (Text, cons, intercalate, pack)
+import qualified Data.Text.Zipper as T (getLineLimit, lineLengths, moveCursor)
 import qualified Brick.Types as B (Padding(..), Widget)
 import qualified Brick.Widgets.Core as B
   ( (<+>)
@@ -11,8 +12,21 @@ import qualified Brick.Widgets.Core as B
   , txt
   , vBox
   )
+import qualified Brick.Widgets.Edit as B (Editor, applyEdit)
 import Core.Tree (Tree(..), root)
 import Core.Types (Note(..))
+
+-- | Move a text editor to the last possible character.
+lastEdit :: B.Editor T.Text n -> B.Editor T.Text n
+lastEdit ed = B.applyEdit f ed
+  where
+    -- f z = T.moveCursor (x, y) z
+    f z = T.moveCursor (row, col) z
+      where
+        row = case T.getLineLimit z of
+          Just n -> n - 1
+          Nothing -> 0
+        col = (maximum . T.lineLengths) z
 
 -- | Render a note as a title.
 renderTitle :: Note -> B.Widget n
