@@ -3,7 +3,7 @@ module UI.Modes.Pending
   , render
   ) where
 
-import qualified Data.Text as T (Text, intercalate, pack)
+import qualified Data.Text as T (Text, intercalate, null, pack)
 import qualified Brick.AttrMap as B (attrName)
 import qualified Brick.Main as B (continue, halt)
 import qualified Brick.Types as B
@@ -47,7 +47,9 @@ handle s (B.VtyEvent e) = case e of
           note = case fld of
             Name -> Note txt de dt st pr
             Desc -> Note nm txt dt st pr
-            Date -> Note nm de (Just txt) st pr
+            Date -> case T.null txt of
+              True  -> Note nm de Nothing st pr
+              False -> Note nm de (Just txt) st pr
           z' = modifyA (const note) z
       B.continue (State z' (Pending fld ed') p)
     where
