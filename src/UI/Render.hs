@@ -9,6 +9,9 @@ import qualified UI.Modes.Normal as N
 import qualified UI.Modes.Pending as P
 
 render :: State -> [B.Widget ()]
-render s@(State _ Help _) = H.render s
-render s@(State _ Normal _) = N.render s
-render s@(State _ (Pending _ _) _) = P.render s
+render s =
+  let render' = case mode s of
+        Help -> H.render
+        Normal -> N.render
+        (Pending _ _) -> P.render
+  in render' s

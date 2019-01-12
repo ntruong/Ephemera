@@ -9,6 +9,9 @@ import qualified UI.Modes.Normal as N
 import qualified UI.Modes.Pending as P
 
 handle :: State -> B.BrickEvent () e -> B.EventM () (B.Next State)
-handle s@(State _ Help _) = H.handle s
-handle s@(State _ Normal _) = N.handle s
-handle s@(State _ (Pending _ _) _) = P.handle s
+handle s =
+  let handle' = case mode s of
+        Help -> H.handle
+        Normal -> N.handle
+        (Pending _ _) -> P.handle
+  in handle' s

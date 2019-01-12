@@ -18,10 +18,10 @@ import Core.Zipper (focus, modifyA)
 import qualified UI.Modes.Normal as N (render)
 
 handle :: State -> B.BrickEvent () e -> B.EventM () (B.Next State)
-handle s@(State z (Pending fld ed) prev) (B.VtyEvent e) = case e of
+handle s (B.VtyEvent e) = case e of
   V.EvKey key _ -> case key of
     -- | Finish editing, return to normal mode.
-    V.KEsc -> B.continue (State z Normal prev)
+    V.KEsc -> B.continue (State z Normal p)
     _ -> do
       ed' <- B.handleEditorEvent e ed
       let txt = (T.intercalate (T.pack "\n") . B.getEditContents) ed'
@@ -31,7 +31,11 @@ handle s@(State z (Pending fld ed) prev) (B.VtyEvent e) = case e of
             Desc -> Note nm txt dt st
             Date -> Note nm de (Just txt) st
           z' = modifyA (const note) z
-      B.continue (State z' (Pending fld ed') prev)
+      B.continue (State z' (Pending fld ed') p)
+    where
+      z = zipper s
+      p = prev s
+      (Pending fld ed) = mode s
   _ -> B.continue s
 handle s _ = B.continue s
 

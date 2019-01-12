@@ -34,33 +34,33 @@ import Core.Zipper
 import IO.Data (encode)
 
 handle :: State -> B.BrickEvent () e -> B.EventM () (B.Next State)
-handle s@(State z _ prev) (B.VtyEvent e) = case e of
+handle s (B.VtyEvent e) = case e of
   V.EvKey key _ -> case key of
     -- Show help menu.
-    V.KChar '?' -> B.continue (State z Help prev)
+    V.KChar '?' -> B.continue (State z Help p)
     -- Go "up" the zipper.
     V.KChar 'h' -> case up z of
-      Just z' -> B.continue (State z' Normal prev)
+      Just z' -> B.continue (State z' Normal p)
       Nothing -> B.continue s -- TODO(ntruong): show error msg?
     -- Go "right" to next child at focus.
     V.KChar 'j' -> case modifyM tRight z of
-      Just z' -> B.continue (State z' Normal prev)
+      Just z' -> B.continue (State z' Normal p)
       Nothing -> B.continue s
     -- Go "left" to next child at focus.
     V.KChar 'k' -> case modifyM tLeft z of
-      Just z' -> B.continue (State z' Normal prev)
+      Just z' -> B.continue (State z' Normal p)
       Nothing -> B.continue s
     -- Go "down" the zipper.
     V.KChar 'l' -> case down z of
-      Just z' -> B.continue (State z' Normal prev)
+      Just z' -> B.continue (State z' Normal p)
       Nothing -> B.continue s -- TODO(ntruong): show error msg?
     -- Go to the leftmost child of the focus.
     V.KChar 'g' -> case modifyM tLeftmost z of
-      Just z' -> B.continue (State z' Normal prev)
+      Just z' -> B.continue (State z' Normal p)
       Nothing -> B.continue s
     -- Go to the rightmost child of the focus.
     V.KChar 'G' -> case modifyM tRightmost z of
-      Just z' -> B.continue (State z' Normal prev)
+      Just z' -> B.continue (State z' Normal p)
       Nothing -> B.continue s
     -- Edit the focus' name.
     V.KChar 'I' ->
@@ -93,7 +93,7 @@ handle s@(State z _ prev) (B.VtyEvent e) = case e of
       let toggle (Note nm de dt st) = Note nm de dt (not st)
       in  B.continue (State (modifyA toggle z) Normal (Just s))
     -- Undo the last modification.
-    V.KChar 'u' -> case prev of
+    V.KChar 'u' -> case p of
       Just s' -> B.continue s'
       Nothing -> B.continue s
     -- Quit.
@@ -102,13 +102,16 @@ handle s@(State z _ prev) (B.VtyEvent e) = case e of
       B.halt s
     -- Base case.
     _ -> B.continue s
+    where
+      z = zipper s
+      p = prev s
   _ -> B.continue s
 handle s _ = B.continue s
 
 render :: State -> [B.Widget ()]
-render (State z _ _) = [B.hLimit 80 note']
+render s = [B.hLimit 80 note']
   where
-    node = focus z
+    node = (focus . zipper) s
     note = root node
     makeTitle :: Note -> B.Widget n
     makeTitle n = B.padRight (B.Pad 1) status'

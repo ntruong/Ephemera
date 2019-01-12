@@ -31,11 +31,14 @@ import Core.Types (Mode(..), State(..))
 -- | Only respond to keyboard events, specifically, only respond to 'q' or 'Esc'
 -- to quit the help menu.
 handle :: State -> B.BrickEvent () e -> B.EventM () (B.Next State)
-handle s@(State z _ prev) (B.VtyEvent e) = case e of
+handle s (B.VtyEvent e) = case e of
   V.EvKey key _ -> case key of
-    V.KEsc -> B.continue (State z Normal prev)
-    V.KChar 'q' -> B.continue (State z Normal prev)
+    V.KEsc -> B.continue (State z Normal p)
+    V.KChar 'q' -> B.continue (State z Normal p)
     _ -> B.continue s
+    where
+      z = zipper s
+      p = prev s
   _ -> B.continue s
 handle s _ = B.continue s
 

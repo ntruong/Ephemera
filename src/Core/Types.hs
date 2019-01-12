@@ -14,7 +14,11 @@ import Core.Zipper (Zipper)
 -- | Represent the state of application. We use a zipper of notes, the current
 -- mode of the application, an editor (for text interaction with the user), and
 -- perhaps the previous state.
-data State = State (Zipper Note) Mode (Maybe State)
+data State = State
+  { zipper :: (Zipper Note)
+  , mode   :: Mode
+  , prev   :: (Maybe State)
+  }
 
 -- | The different modes the application is allowed to have.
 data Mode = Normal
