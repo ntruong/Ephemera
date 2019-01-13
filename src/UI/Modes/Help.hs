@@ -75,7 +75,7 @@ helpMenu =
             ]
       inputs = (B.str . fst) <$> doc
       actions = (B.str . snd) <$> doc
-      label = B.withAttr (B.attrName "title") (B.str "Controls")
+      label = B.withAttr (B.attrName "special") (B.str "Controls")
       menu =
         ( B.padRight B.Max
         . B.withAttr (B.attrName "special")
