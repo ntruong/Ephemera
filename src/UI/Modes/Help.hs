@@ -12,7 +12,7 @@ import qualified Brick.Types as B
   , Padding(Max)
   , Widget
   )
-import qualified Brick.Widgets.Center as B (hCenter, vCenter)
+import qualified Brick.Widgets.Center as B (center)
 import qualified Brick.Widgets.Border as B (borderWithLabel)
 import qualified Brick.Widgets.Core as B
   ( (<+>)
@@ -82,8 +82,7 @@ helpMenu =
         . B.hLimit 8 . B.vBox
         ) inputs
         B.<+> (B.vBox actions)
-  in  ( B.hCenter
-      . B.vCenter
+  in  ( B.center
       . B.hLimit 80
       . B.borderWithLabel label
       . B.padLeftRight 1
