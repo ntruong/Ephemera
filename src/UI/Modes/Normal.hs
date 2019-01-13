@@ -70,17 +70,17 @@ handle s (B.VtyEvent e) = case e of
     -- Edit the focus' name.
     V.KChar 'I' ->
       let ed = lastEdit $ B.editorText () (Just 1) ((name . root . focus) z)
-      in  B.continue (State z (Pending Name ed) (Just s))
+      in  B.continue (State z (Edit Name ed) (Just s))
     -- Edit the focus' description.
     V.KChar 'i' ->
       let ed = lastEdit $ B.editorText () (Just 10) ((desc . root . focus) z)
-      in  B.continue (State z (Pending Desc ed) (Just s))
+      in  B.continue (State z (Edit Desc ed) (Just s))
     -- Edit the focus' description.
     V.KChar '@' ->
       let ed = case (date . root . focus) z of
             Just dt -> lastEdit $ B.editorText () (Just 1) dt
             Nothing -> lastEdit $ B.editorText () (Just 1) T.empty
-      in  B.continue (State z (Pending Date ed) (Just s))
+      in  B.continue (State z (Edit Date ed) (Just s))
     -- Decrement the focus' priority.
     V.KChar '-' ->
       let decr pr = case pr of

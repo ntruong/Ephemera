@@ -23,7 +23,7 @@ data State = State
 
 -- | The different modes the application is allowed to have.
 data Mode = Normal
-          | Pending Field (B.Editor T.Text ())
+          | Edit Field (B.Editor T.Text ())
           | Help
 
 -- | The different editable fields for a note (should be all of them).

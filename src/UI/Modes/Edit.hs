@@ -1,4 +1,4 @@
-module UI.Modes.Pending
+module UI.Modes.Edit
   ( handle
   , render
   ) where
@@ -51,18 +51,18 @@ handle s (B.VtyEvent e) = case e of
               True  -> Note nm de Nothing st pr
               False -> Note nm de (Just txt) st pr
           z' = modifyA (const note) z
-      B.continue (State z' (Pending fld ed') p)
+      B.continue (State z' (Edit fld ed') p)
     where
       z = zipper s
       p = prev s
-      (Pending fld ed) = mode s
+      (Edit fld ed) = mode s
   _ -> B.continue s
 handle s _ = B.continue s
 
 render :: State -> [B.Widget ()]
 -- render = N.render
 render s =
-  let (Pending fld ed) = mode s
+  let (Edit fld ed) = mode s
       node = (focus . zipper) s
       note = root node
       txt = B.renderEditor (B.txt . joinText) True ed
