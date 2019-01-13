@@ -12,6 +12,6 @@ render :: State -> [B.Widget ()]
 render s =
   let render' = case mode s of
         Help -> H.render
-        Normal -> N.render
+        (Normal _) -> N.render
         (Edit _ _) -> P.render
   in render' s

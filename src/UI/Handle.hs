@@ -12,6 +12,6 @@ handle :: State -> B.BrickEvent () e -> B.EventM () (B.Next State)
 handle s =
   let handle' = case mode s of
         Help -> H.handle
-        Normal -> N.handle
+        (Normal _) -> N.handle
         (Edit _ _) -> P.handle
   in handle' s

@@ -39,7 +39,7 @@ handle :: State -> B.BrickEvent () e -> B.EventM () (B.Next State)
 handle s (B.VtyEvent e) = case e of
   V.EvKey key _ -> case key of
     -- | Finish editing, return to normal mode.
-    V.KEsc -> B.continue (State z Normal p)
+    V.KEsc -> B.continue (State z m p)
     _ -> do
       ed' <- B.handleEditorEvent e ed
       let txt = (joinText . B.getEditContents) ed'
@@ -56,6 +56,9 @@ handle s (B.VtyEvent e) = case e of
       z = zipper s
       p = prev s
       (Edit fld ed) = mode s
+      m = case mode <$> p of
+        Just m' -> m'
+        Nothing -> Normal []
   _ -> B.continue s
 handle s _ = B.continue s
 

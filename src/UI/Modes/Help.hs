@@ -33,12 +33,15 @@ import Core.Types (Mode(..), State(..))
 handle :: State -> B.BrickEvent () e -> B.EventM () (B.Next State)
 handle s (B.VtyEvent e) = case e of
   V.EvKey key _ -> case key of
-    V.KEsc -> B.continue (State z Normal p)
-    V.KChar 'q' -> B.continue (State z Normal p)
+    V.KEsc -> B.continue (State z m p)
+    V.KChar 'q' -> B.continue (State z m p)
     _ -> B.continue s
     where
       z = zipper s
       p = prev s
+      m = case mode <$> p of
+        Just m' -> m'
+        Nothing -> Normal []
   _ -> B.continue s
 handle s _ = B.continue s
 

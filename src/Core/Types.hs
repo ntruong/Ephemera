@@ -23,9 +23,8 @@ data State = State
   }
 
 -- | The different modes the application is allowed to have.
-data Mode = Normal
+data Mode = Normal [Tree Note]
           | Edit Field (B.Editor T.Text ())
-          | Move [Tree Note]
           | Help
 
 -- | The different editable fields for a note (should be all of them).
@@ -51,7 +50,7 @@ data Priority = None
 
 -- | Creates a starting state from a given zipper.
 createState :: Zipper Note -> State
-createState z = State z Normal Nothing
+createState z = State z (Normal []) Nothing
 
 -- | An empty note.
 empty :: Note

@@ -75,28 +75,28 @@ handle s (B.VtyEvent e) = case e of
                       None -> None
                       _   -> pred pr
           f (Note nm de dt st pr) = Note nm de dt st (decr pr)
-      in  B.continue (State (modifyA f z) Normal (Just s))
+      in  B.continue (State (modifyA f z) m (Just s))
     -- Increment the focus' priority.
     V.KChar '+' ->
       let incr pr = case pr of
                       High -> High
                       _   -> succ pr
           f (Note nm de dt st pr) = Note nm de dt st (incr pr)
-      in  B.continue (State (modifyA f z) Normal (Just s))
+      in  B.continue (State (modifyA f z) m (Just s))
     -- Add empty note before the focused child.
     V.KChar 'O' ->
       let z' = modify (tInsLeft (Leaf empty)) z
-      in  B.continue (State z' Normal (Just s))
+      in  B.continue (State z' m (Just s))
     -- Add empty note after the focused child.
     V.KChar 'o' ->
       let z' = modify (tInsRight (Leaf empty)) z
-      in  B.continue (State z' Normal (Just s))
+      in  B.continue (State z' m (Just s))
     -- Delete the focused child.
     V.KChar 'd' -> moveFocusM tDelete s
     -- Toggle the focus' status.
     V.KChar ' ' ->
       let f (Note nm de dt st pr) = Note nm de dt (not st) pr
-      in  B.continue (State (modifyA f z) Normal (Just s))
+      in  B.continue (State (modifyA f z) m (Just s))
     -- Undo the last modification.
     V.KChar 'u' -> case p of
       Just s' -> B.continue s'
@@ -110,6 +110,7 @@ handle s (B.VtyEvent e) = case e of
     where
       z = zipper s
       p = prev s
+      m = mode s
   _ -> B.continue s
 handle s _ = B.continue s
 
