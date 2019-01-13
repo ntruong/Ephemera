@@ -27,7 +27,7 @@ import qualified Brick.Widgets.Edit as B (editorText)
 import qualified Graphics.Vty.Input.Events as V (Event(..), Key(..))
 import Core.Tree
 import Core.Types
-  (Field(..)
+  ( Field(..)
   , Mode(..)
   , Note(..)
   , Priority(..)
