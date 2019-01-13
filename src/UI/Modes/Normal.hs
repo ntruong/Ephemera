@@ -15,6 +15,7 @@ import qualified Brick.Types as B
   , Padding(..)
   , Widget
   )
+import qualified Brick.Widgets.Center as B (hCenter)
 import qualified Brick.Widgets.Core as B
   ( (<+>)
   , (<=>)
@@ -152,4 +153,4 @@ render s =
                      , B.padBottom (B.Pad 1) desc'
                      , children
                      ]
-  in  [B.hLimit 80 note']
+  in  [(B.hCenter . B.hLimit 80) note']

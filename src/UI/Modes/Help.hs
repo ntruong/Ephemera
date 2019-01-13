@@ -83,6 +83,7 @@ helpMenu =
         ) inputs
         B.<+> (B.vBox actions)
   in  ( B.hCenter
+      . B.vCenter
       . B.hLimit 80
       . B.borderWithLabel label
       . B.padLeftRight 1
