@@ -39,33 +39,6 @@ moveFocusM f s = case modifyM f (zipper s) of
   Just z  -> continueZipper s z
   Nothing -> B.continue s
 
-{-
-    V.KChar 'h' -> case up z of
-      Just z' -> B.continue (State z' Normal p)
-      Nothing -> B.continue s -- TODO(ntruong): show error msg?
-    -- Go "right" to next child at focus.
-    V.KChar 'j' -> case modifyM tRight z of
-      Just z' -> B.continue (State z' Normal p)
-      Nothing -> B.continue s
-    -- Go "left" to next child at focus.
-    V.KChar 'k' -> case modifyM tLeft z of
-      Just z' -> B.continue (State z' Normal p)
-      Nothing -> B.continue s
-    -- Go "down" the zipper.
-    V.KChar 'l' -> case down z of
-      Just z' -> B.continue (State z' Normal p)
-      Nothing -> B.continue s -- TODO(ntruong): show error msg?
-    -- Go to the leftmost child of the focus.
-    V.KChar 'g' -> case modifyM tLeftmost z of
-      Just z' -> B.continue (State z' Normal p)
-      Nothing -> B.continue s
-    -- Go to the rightmost child of the focus.
-    V.KChar 'G' -> case modifyM tRightmost z of
-      Just z' -> B.continue (State z' Normal p)
-      Nothing -> B.continue s
-    -- Edit the focus' name.
- -}
-
 -- | Move a text editor to the last possible character.
 lastEdit :: B.Editor T.Text n -> B.Editor T.Text n
 lastEdit ed = B.applyEdit f ed
