@@ -10,6 +10,7 @@ module Core.Types
 
 import qualified Data.Text as T (Text, empty)
 import qualified Brick.Widgets.Edit as B (Editor)
+import Core.Tree (Tree)
 import Core.Zipper (Zipper)
 
 -- | Represent the state of application. We use a zipper of notes, the current
@@ -24,6 +25,7 @@ data State = State
 -- | The different modes the application is allowed to have.
 data Mode = Normal
           | Edit Field (B.Editor T.Text ())
+          | Move [Tree Note]
           | Help
 
 -- | The different editable fields for a note (should be all of them).

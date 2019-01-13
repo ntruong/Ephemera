@@ -3,7 +3,8 @@ module UI.Utils where
 import qualified Data.Text as T (Text, cons, intercalate, length, pack)
 import qualified Data.Text.Zipper as T (getText, moveCursor)
 import qualified Brick.AttrMap as B (attrName)
-import qualified Brick.Types as B (Padding(..), Widget)
+import qualified Brick.Main as B (continue)
+import qualified Brick.Types as B (EventM, Next, Padding(..), Widget)
 import qualified Brick.Widgets.Core as B
   ( (<+>)
   , (<=>)
@@ -15,8 +16,55 @@ import qualified Brick.Widgets.Core as B
   , withAttr
   )
 import qualified Brick.Widgets.Edit as B (Editor, applyEdit)
-import Core.Tree (Tree(..), root)
-import Core.Types (Note(..), Priority(..))
+import Core.Tree (Tree(..), root, tLeft, tLeftmost, tRight, tRightmost)
+import Core.Types (Mode(..), Note(..), Priority(..), State(..))
+import Core.Zipper (Zipper, down, up, modifyM)
+
+continueZipper :: State -> Zipper Note -> B.EventM () (B.Next State)
+continueZipper s z = B.continue (State z (mode s) (prev s))
+
+-- | Conduct a movement on zipper which may or may not succeed.
+moveM :: (Zipper Note -> Maybe (Zipper Note))
+      -> State
+      -> B.EventM () (B.Next State)
+moveM f s = case (f . zipper) s of
+  Just z  -> continueZipper s z
+  Nothing -> B.continue s
+
+-- | Conduct a movement on the focus of a zipper which may or may not succeed.
+moveFocusM :: (Tree Note -> Maybe (Tree Note))
+           -> State
+           -> B.EventM () (B.Next State)
+moveFocusM f s = case modifyM f (zipper s) of
+  Just z  -> continueZipper s z
+  Nothing -> B.continue s
+
+{-
+    V.KChar 'h' -> case up z of
+      Just z' -> B.continue (State z' Normal p)
+      Nothing -> B.continue s -- TODO(ntruong): show error msg?
+    -- Go "right" to next child at focus.
+    V.KChar 'j' -> case modifyM tRight z of
+      Just z' -> B.continue (State z' Normal p)
+      Nothing -> B.continue s
+    -- Go "left" to next child at focus.
+    V.KChar 'k' -> case modifyM tLeft z of
+      Just z' -> B.continue (State z' Normal p)
+      Nothing -> B.continue s
+    -- Go "down" the zipper.
+    V.KChar 'l' -> case down z of
+      Just z' -> B.continue (State z' Normal p)
+      Nothing -> B.continue s -- TODO(ntruong): show error msg?
+    -- Go to the leftmost child of the focus.
+    V.KChar 'g' -> case modifyM tLeftmost z of
+      Just z' -> B.continue (State z' Normal p)
+      Nothing -> B.continue s
+    -- Go to the rightmost child of the focus.
+    V.KChar 'G' -> case modifyM tRightmost z of
+      Just z' -> B.continue (State z' Normal p)
+      Nothing -> B.continue s
+    -- Edit the focus' name.
+ -}
 
 -- | Move a text editor to the last possible character.
 lastEdit :: B.Editor T.Text n -> B.Editor T.Text n

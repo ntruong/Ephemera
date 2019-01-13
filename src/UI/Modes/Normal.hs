@@ -44,29 +44,17 @@ handle s (B.VtyEvent e) = case e of
     -- Show help menu.
     V.KChar '?' -> B.continue (State z Help p)
     -- Go "up" the zipper.
-    V.KChar 'h' -> case up z of
-      Just z' -> B.continue (State z' Normal p)
-      Nothing -> B.continue s -- TODO(ntruong): show error msg?
+    V.KChar 'h' -> moveM up s
     -- Go "right" to next child at focus.
-    V.KChar 'j' -> case modifyM tRight z of
-      Just z' -> B.continue (State z' Normal p)
-      Nothing -> B.continue s
+    V.KChar 'j' -> moveFocusM tRight s
     -- Go "left" to next child at focus.
-    V.KChar 'k' -> case modifyM tLeft z of
-      Just z' -> B.continue (State z' Normal p)
-      Nothing -> B.continue s
+    V.KChar 'k' -> moveFocusM tLeft s
     -- Go "down" the zipper.
-    V.KChar 'l' -> case down z of
-      Just z' -> B.continue (State z' Normal p)
-      Nothing -> B.continue s -- TODO(ntruong): show error msg?
+    V.KChar 'l' -> moveM down s
     -- Go to the leftmost child of the focus.
-    V.KChar 'g' -> case modifyM tLeftmost z of
-      Just z' -> B.continue (State z' Normal p)
-      Nothing -> B.continue s
+    V.KChar 'g' -> moveFocusM tLeftmost s
     -- Go to the rightmost child of the focus.
-    V.KChar 'G' -> case modifyM tRightmost z of
-      Just z' -> B.continue (State z' Normal p)
-      Nothing -> B.continue s
+    V.KChar 'G' -> moveFocusM tRightmost s
     -- Edit the focus' name.
     V.KChar 'I' ->
       let ed = lastEdit $ B.editorText () (Just 1) ((name . root . focus) z)
@@ -104,9 +92,7 @@ handle s (B.VtyEvent e) = case e of
       let z' = modify (tInsRight (Leaf empty)) z
       in  B.continue (State z' Normal (Just s))
     -- Delete the focused child.
-    V.KChar 'd' -> case modifyM tDelete z of
-      Just z' -> B.continue (State z' Normal (Just s))
-      Nothing -> B.continue s
+    V.KChar 'd' -> moveFocusM tDelete s
     -- Toggle the focus' status.
     V.KChar ' ' ->
       let f (Note nm de dt st pr) = Note nm de dt (not st) pr
