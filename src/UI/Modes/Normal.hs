@@ -93,7 +93,9 @@ handle s (B.VtyEvent e) = case e of
       let z' = modify (tInsRight (Leaf empty)) z
       in  B.continue (State z' m (Just s))
     -- Delete the focused child.
-    V.KChar 'd' -> moveFocusM tDelete s
+    V.KChar 'd' -> case modifyM tDelete z of
+      Just z' -> B.continue (State z' m (Just s))
+      Nothing -> B.continue s
     -- Yank the focused child into a list to be pasted elsewhere.
     V.KChar 'y' ->
       let t = M.fromMaybe (Leaf empty) (focus <$> down z)
