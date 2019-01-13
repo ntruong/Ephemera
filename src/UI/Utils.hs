@@ -1,7 +1,7 @@
 module UI.Utils where
 
-import qualified Data.Text as T (Text, cons, intercalate, pack)
-import qualified Data.Text.Zipper as T (getLineLimit, lineLengths, moveCursor)
+import qualified Data.Text as T (Text, cons, intercalate, length, pack)
+import qualified Data.Text.Zipper as T (getText, moveCursor)
 import qualified Brick.AttrMap as B (attrName)
 import qualified Brick.Types as B (Padding(..), Widget)
 import qualified Brick.Widgets.Core as B
@@ -22,13 +22,11 @@ import Core.Types (Note(..), Priority(..))
 lastEdit :: B.Editor T.Text n -> B.Editor T.Text n
 lastEdit ed = B.applyEdit f ed
   where
-    -- f z = T.moveCursor (x, y) z
     f z = T.moveCursor (row, col) z
       where
-        row = case T.getLineLimit z of
-          Just n -> n - 1
-          Nothing -> 0
-        col = (maximum . T.lineLengths) z
+        text = T.getText z
+        row  = max 0 ((length text) - 1)
+        col  = (T.length . last) text
 
 -- | Render a note as a title.
 renderTitle :: Note -> B.Widget n
