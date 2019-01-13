@@ -9,6 +9,7 @@ import qualified Brick.Widgets.Core as B
   ( (<+>)
   , (<=>)
   , emptyWidget
+  , padLeft
   , padRight
   , str
   , txt
@@ -50,28 +51,31 @@ lastEdit ed = B.applyEdit f ed
         col  = (T.length . last) text
 
 -- | Render a note as a title.
-renderTitle :: Note -> B.Widget n
-renderTitle note =
-  let n = B.txt (name note)
+renderTitle :: Tree Note -> B.Widget n
+renderTitle node =
+  let note = root node
+      n = B.txt (name note)
       d = (renderDate . date) note
       s = (renderStatus . status) note
       p = (renderPriority . priority) note
+      c = renderProgress node
   in  B.padRight (B.Pad 1) s
-      B.<+> B.padRight (B.Pad 1) n
-      B.<+> (B.padRight B.Max p)
-      B.<+> d
+      B.<+> B.padRight B.Max n
+      B.<+> p
+      B.<+> (B.padLeft (B.Pad 1) d)
+      B.<=> B.withAttr (B.attrName "progress") c
 
 -- | Render a Tree's children, given rendering functions.
 renderChildren
-  :: (a -> B.Widget n)
-  -> (a -> B.Widget n)
+  :: (Tree a -> B.Widget n)
+  -> (Tree a -> B.Widget n)
   -> Tree a
   -> B.Widget n
 renderChildren _ _ (Leaf _) = B.emptyWidget
 renderChildren f g (Branch _ lSibs focused rSibs) =
-  let lSibs' = (f . root) <$> (reverse lSibs)
-      focused' = (g . root) focused
-      rSibs' = (f . root) <$> rSibs
+  let lSibs' = f <$> (reverse lSibs)
+      focused' = g focused
+      rSibs' = f <$> rSibs
   in (B.vBox lSibs') B.<=> focused' B.<=> (B.vBox rSibs')
 
 -- | Render a date.
@@ -86,7 +90,16 @@ renderStatus False = B.str "[ ]"
 
 -- | Render a priority as colored digraphs.
 renderPriority :: Priority -> B.Widget n
-renderPriority None = B.str " " -- B.emptyWidget shrinks padding for some reason
+renderPriority None = B.emptyWidget
 renderPriority Low  = (B.withAttr (B.attrName "low") . B.str) "●"
 renderPriority Mid  = (B.withAttr (B.attrName "mid") . B.str) "●"
 renderPriority High = (B.withAttr (B.attrName "high") . B.str) "●"
+
+-- | Render progress as `[x/y]`, given a tree.
+renderProgress :: Tree Note -> B.Widget n
+renderProgress (Leaf _) = B.emptyWidget
+renderProgress (Branch _ lSibs focused rSibs) =
+  let children = lSibs ++ [focused] ++ rSibs
+      done = length (filter (status . root) children)
+      strs = ["≡ [", show done, "/", show (length children), "]"]
+  in  foldl (B.<+>) B.emptyWidget (B.str <$> strs)

@@ -15,9 +15,11 @@ import qualified Brick.Types as B
   )
 import qualified Brick.Widgets.Core as B
   ( (<+>)
+  , (<=>)
   , emptyWidget
   , hLimit
   , padBottom
+  , padLeft
   , padRight
   , txt
   , vBox
@@ -75,13 +77,17 @@ render s =
         Date -> ((B.txt . name) note, (B.txt . desc) note, txt)
       status' = (renderStatus . status) note
       priority' = (renderPriority . priority) note
+      progress' = renderProgress node
       children =
-        let f = (B.withAttr (B.attrName "focus")) . renderTitle
-        in  renderChildren renderTitle f node
+        let f = B.padBottom (B.Pad 1)
+              . (B.withAttr (B.attrName "focus"))
+              . renderTitle
+        in  renderChildren (B.padBottom (B.Pad 1) . renderTitle) f node
       title = B.padRight (B.Pad 1) status'
-              B.<+> B.padRight (B.Pad 1) name'
-              B.<+> (B.padRight B.Max priority')
-              B.<+> date'
+              B.<+> B.padRight B.Max name'
+              B.<+> priority'
+              B.<+> (B.padLeft (B.Pad 1) date')
+              B.<=> B.withAttr (B.attrName "progress") progress'
       note' = B.vBox [ ( B.padBottom (B.Pad 1)
                        . B.withAttr (B.attrName "title")
                        ) title

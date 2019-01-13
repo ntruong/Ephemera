@@ -139,12 +139,14 @@ render s =
       note = root node
       desc' = B.txt (desc note)
       children =
-        let f = (B.withAttr (B.attrName "focus")) . renderTitle
-        in  renderChildren renderTitle f node
+        let f = B.padBottom (B.Pad 1)
+              . (B.withAttr (B.attrName "focus"))
+              . renderTitle
+        in  renderChildren (B.padBottom (B.Pad 1) . renderTitle) f node
       note' = B.vBox [ ( B.padBottom (B.Pad 1)
                        . B.withAttr (B.attrName "title")
                        . renderTitle
-                       ) note
+                       ) node
                      , B.padBottom (B.Pad 1) desc'
                      , children
                      ]
