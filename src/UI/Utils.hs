@@ -13,6 +13,7 @@ import qualified Brick.Widgets.Core as B
   , padRight
   , str
   , txt
+  , txtWrap
   , vBox
   , withAttr
   )
@@ -55,7 +56,7 @@ renderTitle :: Tree Note -> B.Widget n
 renderTitle node =
   let note = root node
       n = case ((T.length . name) note) > 0 of
-        True  -> B.txt (name note)
+        True  -> B.txtWrap (name note)
         False -> B.txt (T.pack " ")
       d = (renderDate . date) note
       s = (renderStatus . status) note
@@ -82,7 +83,7 @@ renderChildren f g (Branch _ lSibs focused rSibs) =
 
 -- | Render a date.
 renderDate :: Maybe (T.Text) -> B.Widget n
-renderDate (Just x) = (B.txt . T.cons '@') x
+renderDate (Just x) = (B.txtWrap . T.cons '@') x
 renderDate Nothing  = B.emptyWidget
 
 -- | Render a status as a checkbox.

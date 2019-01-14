@@ -21,7 +21,7 @@ import qualified Brick.Widgets.Core as B
   , (<=>)
   , hLimit
   , padBottom
-  , txt
+  , txtWrap
   , vBox
   , withAttr
   )
@@ -148,7 +148,7 @@ render :: State -> [B.Widget ()]
 render s =
   let node = (focus . zipper) s
       note = root node
-      desc' = B.txt (desc note)
+      desc' = (B.txtWrap . desc) note
       children =
         let title = B.padBottom (B.Pad 1) . renderTitle
             f = B.withAttr (B.attrName "unfocused") . title
