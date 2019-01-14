@@ -150,10 +150,10 @@ render s =
       note = root node
       desc' = B.txt (desc note)
       children =
-        let f = B.padBottom (B.Pad 1)
-              . (B.withAttr (B.attrName "focus"))
-              . renderTitle
-        in  renderChildren (B.padBottom (B.Pad 1) . renderTitle) f node
+        let title = B.padBottom (B.Pad 1) . renderTitle
+            f = B.withAttr (B.attrName "unfocused") . title
+            g = B.withAttr (B.attrName "focused") . title
+        in  renderChildren f g node
       note' = B.vBox [ ( B.padBottom (B.Pad 1)
                        . B.withAttr (B.attrName "title")
                        . renderTitle

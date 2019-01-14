@@ -4,7 +4,7 @@ module UI.Theme
 
 import qualified Brick.AttrMap as B (attrName)
 import qualified Brick.Themes as B (Theme, newTheme)
-import qualified Brick.Util as B (fg, on)
+import qualified Brick.Util as B (fg)
 import qualified Graphics.Vty.Attributes as V
   ( black
   , red
@@ -20,12 +20,13 @@ import qualified Graphics.Vty.Attributes as V
 -- config.ini file.
 theme :: B.Theme
 theme =
-  let attrs = [ (B.attrName "title",    B.fg V.cyan)
-              , (B.attrName "special",  B.fg V.magenta)
-              , (B.attrName "focus",    B.fg V.magenta)
-              , (B.attrName "progress", B.fg V.yellow)
-              , (B.attrName "low",      B.fg V.green)
-              , (B.attrName "mid",      B.fg V.yellow)
-              , (B.attrName "high",     B.fg V.red)
+  let attrs = [ (B.attrName "title",     B.fg V.cyan)
+              , (B.attrName "special",   B.fg V.magenta)
+              , (B.attrName "focused",   B.fg V.magenta)
+              , (B.attrName "unfocused", B.fg V.white)
+              , (B.attrName "progress",  B.fg V.yellow)
+              , (B.attrName "low",       B.fg V.green)
+              , (B.attrName "mid",       B.fg V.yellow)
+              , (B.attrName "high",      B.fg V.red)
               ]
-  in B.newTheme (V.white `B.on` V.black) attrs
+  in B.newTheme (B.fg V.white) attrs
