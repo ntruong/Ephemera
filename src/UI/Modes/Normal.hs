@@ -118,6 +118,14 @@ handle s (B.VtyEvent e) = case e of
     V.KChar ' ' ->
       let f (Note nm de dt st pr) = Note nm de dt (not st) pr
       in  B.continue (State (modifyA f z) m (Just s))
+    -- Sort children based on date.
+    V.KChar '!' ->
+      let z' = modify (tSortOn (date . root)) z
+      in  B.continue (State z' m (Just s))
+    -- Sort children based on priority.
+    V.KChar '=' ->
+      let z' = modify (tSortOn (priority . root)) z
+      in  B.continue (State z' m (Just s))
     -- Undo the last modification.
     V.KChar 'u' -> case p of
       Just s' -> B.continue s'

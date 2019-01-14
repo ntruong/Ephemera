@@ -8,7 +8,10 @@ module Core.Tree
   , tDelete
   , tLeftmost
   , tRightmost
+  , tSortOn
   ) where
+
+import qualified Data.List as L (sortOn)
 
 -- | Trees consist of either terminal (Leaf) nodes or parent (Branch) nodes that
 -- have at least one subtree. We use n-ary trees. Children are stored in
@@ -78,3 +81,12 @@ tRightmost (Branch a lSibs focused rSibs) =
   let focused' = last rSibs
       lSibs' = ((reverse . init) rSibs) ++ [focused] ++ lSibs
   in  Just (Branch a lSibs' focused' [])
+
+-- | Sort the children of a tree, given a ordering function.
+tSortOn :: (Ord b) => (Tree a -> b) -> Tree a -> Tree a
+tSortOn f (Leaf a) = Leaf a
+tSortOn f (Branch a lSibs focused rSibs) =
+  let children = L.sortOn f ((reverse lSibs) ++ rSibs)
+      lSibs' = (reverse . takeWhile ((f focused >) . f)) children
+      rSibs' = drop (length lSibs') children
+  in  Branch a lSibs' focused rSibs'
