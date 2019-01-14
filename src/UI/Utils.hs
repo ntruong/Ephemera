@@ -54,7 +54,9 @@ lastEdit ed = B.applyEdit f ed
 renderTitle :: Tree Note -> B.Widget n
 renderTitle node =
   let note = root node
-      n = B.txt (name note)
+      n = case ((T.length . name) note) > 0 of
+        True  -> B.txt (name note)
+        False -> B.txt (T.pack " ")
       d = (renderDate . date) note
       s = (renderStatus . status) note
       p = (renderPriority . priority) note
