@@ -83,7 +83,7 @@ renderChildren f g (Branch _ lSibs focused rSibs) =
 
 -- | Render a date.
 renderDate :: Maybe (T.Text) -> B.Widget n
-renderDate (Just x) = (B.txtWrap . T.cons '@') x
+renderDate (Just x) = (B.txt . T.cons '@') x
 renderDate Nothing  = B.emptyWidget
 
 -- | Render a status as a checkbox.
