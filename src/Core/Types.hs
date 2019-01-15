@@ -1,5 +1,6 @@
 module Core.Types
   ( State(..)
+  , Resource(..)
   , Mode(..)
   , Field(..)
   , Note(..)
@@ -22,9 +23,14 @@ data State = State
   , prev   :: (Maybe State)
   }
 
+-- | Resource names.
+data Resource = Viewport
+              | Editor
+              deriving (Eq, Ord, Show)
+
 -- | The different modes the application is allowed to have.
 data Mode = Normal [Tree Note]
-          | Edit Field (B.Editor T.Text ())
+          | Edit Field (B.Editor T.Text Resource)
           | Help
 
 -- | The different editable fields for a note (should be all of them).

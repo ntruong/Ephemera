@@ -26,11 +26,11 @@ import qualified Brick.Widgets.Core as B
   , withAttr
   )
 import qualified Graphics.Vty.Input.Events as V (Event(..), Key(..))
-import Core.Types (Mode(..), State(..))
+import Core.Types (Mode(..), Resource, State(..))
 
 -- | Only respond to keyboard events, specifically, only respond to 'q' or 'Esc'
 -- to quit the help menu.
-handle :: State -> B.BrickEvent () e -> B.EventM () (B.Next State)
+handle :: State -> B.BrickEvent Resource e -> B.EventM Resource (B.Next State)
 handle s (B.VtyEvent e) = case e of
   V.EvKey key _ -> case key of
     V.KEsc -> B.continue (State z m p)
@@ -45,10 +45,10 @@ handle s (B.VtyEvent e) = case e of
   _ -> B.continue s
 handle s _ = B.continue s
 
-render :: State -> [B.Widget ()]
+render :: State -> [B.Widget Resource]
 render = const [helpMenu]
 
-helpMenu :: B.Widget ()
+helpMenu :: B.Widget Resource
 helpMenu =
   let doc = [ ("?"     , "Show this help menu" )
             , ("h"     , "Move left (higher)"  )

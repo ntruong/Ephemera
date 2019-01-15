@@ -34,11 +34,11 @@ import qualified Brick.Widgets.Edit as B
   )
 import qualified Graphics.Vty.Input.Events as V (Event(..), Key(..))
 import Core.Tree (root)
-import Core.Types (Field(..), Mode(..), Note(..), State(..))
+import Core.Types (Field(..), Mode(..), Note(..), Resource(..), State(..))
 import Core.Zipper (focus, modifyA)
 import UI.Utils
 
-handle :: State -> B.BrickEvent () e -> B.EventM () (B.Next State)
+handle :: State -> B.BrickEvent Resource e -> B.EventM Resource (B.Next State)
 handle s (B.VtyEvent e) = case e of
   V.EvKey key _ -> case key of
     -- | Finish editing, return to normal mode.
@@ -65,7 +65,7 @@ handle s (B.VtyEvent e) = case e of
   _ -> B.continue s
 handle s _ = B.continue s
 
-render :: State -> [B.Widget ()]
+render :: State -> [B.Widget Resource]
 -- render = N.render
 render s =
   let (Edit fld ed) = mode s

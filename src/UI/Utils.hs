@@ -4,7 +4,13 @@ import qualified Data.Text as T (Text, cons, intercalate, length, pack)
 import qualified Data.Text.Zipper as T (getText, moveCursor)
 import qualified Brick.AttrMap as B (attrName)
 import qualified Brick.Main as B (continue)
-import qualified Brick.Types as B (EventM, Next, Padding(..), Widget)
+import qualified Brick.Types as B
+  ( EventM
+  , Next
+  , Padding(..)
+  , ViewportType(..)
+  , Widget
+  )
 import qualified Brick.Widgets.Core as B
   ( (<+>)
   , (<=>)
@@ -15,20 +21,23 @@ import qualified Brick.Widgets.Core as B
   , txt
   , txtWrap
   , vBox
+  , viewport
+  , visible
   , withAttr
   )
 import qualified Brick.Widgets.Edit as B (Editor, applyEdit)
 import Core.Tree (Tree(..), root, tLeft, tLeftmost, tRight, tRightmost)
-import Core.Types (Mode(..), Note(..), Priority(..), State(..))
+import Core.Types (Mode(..), Note(..), Priority(..), Resource(..), State(..))
 import Core.Zipper (Zipper, down, up, modifyM)
 
-continueZipper :: State -> Zipper Note -> B.EventM () (B.Next State)
+-- | Continue a given zipper from a previous state.
+continueZipper :: State -> Zipper Note -> B.EventM Resource (B.Next State)
 continueZipper s z = B.continue (State z (mode s) (prev s))
 
 -- | Conduct a movement on zipper which may or may not succeed.
 moveM :: (Zipper Note -> Maybe (Zipper Note))
       -> State
-      -> B.EventM () (B.Next State)
+      -> B.EventM Resource (B.Next State)
 moveM f s = case (f . zipper) s of
   Just z  -> continueZipper s z
   Nothing -> B.continue s
@@ -36,7 +45,7 @@ moveM f s = case (f . zipper) s of
 -- | Conduct a movement on the focus of a zipper which may or may not succeed.
 moveFocusM :: (Tree Note -> Maybe (Tree Note))
            -> State
-           -> B.EventM () (B.Next State)
+           -> B.EventM Resource (B.Next State)
 moveFocusM f s = case modifyM f (zipper s) of
   Just z  -> continueZipper s z
   Nothing -> B.continue s
@@ -70,16 +79,17 @@ renderTitle node =
 
 -- | Render a Tree's children, given rendering functions.
 renderChildren
-  :: (Tree a -> B.Widget n)
-  -> (Tree a -> B.Widget n)
+  :: (Tree a -> B.Widget Resource)
+  -> (Tree a -> B.Widget Resource)
   -> Tree a
-  -> B.Widget n
+  -> B.Widget Resource
 renderChildren _ _ (Leaf _) = B.emptyWidget
 renderChildren f g (Branch _ lSibs focused rSibs) =
   let lSibs' = f <$> (reverse lSibs)
-      focused' = g focused
+      focused' = (B.visible . g) focused
       rSibs' = f <$> rSibs
-  in (B.vBox lSibs') B.<=> focused' B.<=> (B.vBox rSibs')
+      children = (B.vBox lSibs') B.<=> focused' B.<=> (B.vBox rSibs')
+  in  B.viewport Viewport B.Vertical children
 
 -- | Render a date.
 renderDate :: Maybe (T.Text) -> B.Widget n

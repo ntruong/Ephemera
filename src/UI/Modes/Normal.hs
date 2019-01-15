@@ -33,6 +33,7 @@ import Core.Types
   , Mode(..)
   , Note(..)
   , Priority(..)
+  , Resource(..)
   , State(..)
   , empty
   )
@@ -40,7 +41,7 @@ import Core.Zipper
 import IO.Data (encode)
 import UI.Utils
 
-handle :: State -> B.BrickEvent () e -> B.EventM () (B.Next State)
+handle :: State -> B.BrickEvent Resource e -> B.EventM Resource (B.Next State)
 handle s (B.VtyEvent e) = case e of
   V.EvKey key _ -> case key of
     -- Show help menu.
@@ -59,17 +60,17 @@ handle s (B.VtyEvent e) = case e of
     V.KChar 'G' -> moveFocusM tRightmost s
     -- Edit the focus' name.
     V.KChar 'I' ->
-      let ed = lastEdit $ B.editorText () (Just 1) ((name . root . focus) z)
+      let ed = lastEdit $ B.editorText Editor (Just 1) ((name . root . focus) z)
       in  B.continue (State z (Edit Name ed) (Just s))
     -- Edit the focus' description.
     V.KChar 'i' ->
-      let ed = lastEdit $ B.editorText () (Just 10) ((desc . root . focus) z)
+      let ed = lastEdit $ B.editorText Editor (Just 10) ((desc . root . focus) z)
       in  B.continue (State z (Edit Desc ed) (Just s))
     -- Edit the focus' description.
     V.KChar '@' ->
       let ed = case (date . root . focus) z of
-            Just dt -> lastEdit $ B.editorText () (Just 1) dt
-            Nothing -> lastEdit $ B.editorText () (Just 1) T.empty
+            Just dt -> lastEdit $ B.editorText Editor (Just 1) dt
+            Nothing -> lastEdit $ B.editorText Editor (Just 1) T.empty
       in  B.continue (State z (Edit Date ed) (Just s))
     -- Decrement the focus' priority.
     V.KChar '-' ->
@@ -144,7 +145,7 @@ handle s (B.VtyEvent e) = case e of
   _ -> B.continue s
 handle s _ = B.continue s
 
-render :: State -> [B.Widget ()]
+render :: State -> [B.Widget Resource]
 render s =
   let node = (focus . zipper) s
       note = root node
