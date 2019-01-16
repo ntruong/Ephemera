@@ -125,7 +125,7 @@ handle s (B.VtyEvent e) = case e of
       in  B.continue (State z' m (Just s))
     -- Sort children based on priority.
     V.KChar '=' ->
-      let z' = modify (tSortOn (priority . root)) z
+      let z' = modify (tReverse . tSortOn (priority . root)) z
       in  B.continue (State z' m (Just s))
     -- Undo the last modification.
     V.KChar 'u' -> case p of

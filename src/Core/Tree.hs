@@ -9,6 +9,7 @@ module Core.Tree
   , tLeftmost
   , tRightmost
   , tSortOn
+  , tReverse
   ) where
 
 import qualified Data.List as L (sortOn)
@@ -90,3 +91,8 @@ tSortOn f (Branch a lSibs focused rSibs) =
       lSibs' = (reverse . takeWhile ((f focused >) . f)) children
       rSibs' = drop (length lSibs') children
   in  Branch a lSibs' focused rSibs'
+
+-- | Reverse the children of a tree.
+tReverse :: Tree a -> Tree a
+tReverse (Leaf a) = Leaf a
+tReverse (Branch a lSibs focused rSibs) = Branch a rSibs focused lSibs
