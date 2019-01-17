@@ -3,6 +3,7 @@ module UI.Modes.Edit
   , render
   ) where
 
+import qualified Data.Maybe as M (maybe)
 import qualified Data.Text as T (Text, intercalate, null, pack)
 import qualified Brick.AttrMap as B (attrName)
 import qualified Brick.Main as B (continue, halt)
@@ -50,18 +51,16 @@ handle s (B.VtyEvent e) = case e of
           note = case fld of
             Name -> Note txt de dt st pr
             Desc -> Note nm txt dt st pr
-            Date -> case T.null txt of
-              True  -> Note nm de Nothing st pr
-              False -> Note nm de (Just txt) st pr
+            Date -> if   T.null txt
+                    then Note nm de Nothing st pr
+                    else Note nm de (Just txt) st pr
           z' = modifyA (const note) z
       B.continue (State z' (Edit fld ed') p)
     where
       z = zipper s
       p = prev s
       (Edit fld ed) = mode s
-      m = case mode <$> p of
-        Just m' -> m'
-        Nothing -> Normal []
+      m = M.maybe (Normal []) mode p
   _ -> B.continue s
 handle s _ = B.continue s
 
@@ -81,13 +80,13 @@ render s =
       progress' = renderProgress node
       children =
         let f = B.padBottom (B.Pad 1)
-              . (B.withAttr (B.attrName "focus"))
+              . B.withAttr (B.attrName "focus")
               . renderTitle
         in  renderChildren (B.padBottom (B.Pad 1) . renderTitle) f node
       title = B.padRight (B.Pad 1) status'
               B.<+> B.padRight B.Max name'
               B.<+> priority'
-              B.<+> (B.padLeft (B.Pad 1) date')
+              B.<+> B.padLeft (B.Pad 1) date'
               B.<=> B.withAttr (B.attrName "progress") progress'
       note' = B.vBox [ ( B.padBottom (B.Pad 1)
                        . B.withAttr (B.attrName "title")

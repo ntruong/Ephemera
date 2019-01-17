@@ -18,9 +18,9 @@ import Core.Zipper (Zipper)
 -- mode of the application, an editor (for text interaction with the user), and
 -- perhaps the previous state.
 data State = State
-  { zipper :: (Zipper Note)
+  { zipper :: Zipper Note
   , mode   :: Mode
-  , prev   :: (Maybe State)
+  , prev   :: Maybe State
   }
 
 -- | Resource names.

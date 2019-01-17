@@ -71,7 +71,7 @@ tLeftmost (Leaf _) = Nothing
 tLeftmost (Branch _ [] _ _) = Nothing
 tLeftmost (Branch a lSibs focused rSibs) =
   let focused' = last lSibs
-      rSibs' = ((reverse . init) lSibs) ++ [focused] ++ rSibs
+      rSibs' = (reverse . init) lSibs ++ [focused] ++ rSibs
   in  Just (Branch a [] focused' rSibs')
 
 -- | Focus the rightmost child of a tree, if possible.
@@ -80,14 +80,14 @@ tRightmost (Leaf _) = Nothing
 tRightmost (Branch _ _ _ []) = Nothing
 tRightmost (Branch a lSibs focused rSibs) =
   let focused' = last rSibs
-      lSibs' = ((reverse . init) rSibs) ++ [focused] ++ lSibs
+      lSibs' = (reverse . init) rSibs ++ [focused] ++ lSibs
   in  Just (Branch a lSibs' focused' [])
 
 -- | Sort the children of a tree, given a ordering function.
 tSortOn :: (Ord b) => (Tree a -> b) -> Tree a -> Tree a
 tSortOn f (Leaf a) = Leaf a
 tSortOn f (Branch a lSibs focused rSibs) =
-  let children = L.sortOn f ((reverse lSibs) ++ rSibs)
+  let children = L.sortOn f (reverse lSibs ++ rSibs)
       lSibs' = (reverse . takeWhile ((f focused >) . f)) children
       rSibs' = drop (length lSibs') children
   in  Branch a lSibs' focused rSibs'

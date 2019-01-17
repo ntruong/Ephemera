@@ -4,7 +4,7 @@ module UI.Modes.Normal
   ) where
 
 import qualified Control.Monad.IO.Class as M (liftIO)
-import qualified Data.Maybe as M (fromMaybe)
+import qualified Data.Maybe as M (maybe)
 import qualified Data.Text as T (cons, empty)
 import qualified Brick.AttrMap as B (attrName)
 import qualified Brick.Main as B (continue, halt)
@@ -100,19 +100,19 @@ handle s (B.VtyEvent e) = case e of
       Nothing -> B.continue s
     -- Yank the focused child into a list to be pasted elsewhere.
     V.KChar 'y' ->
-      let t = M.fromMaybe (Leaf empty) (focus <$> down z)
+      let t = M.maybe (Leaf empty) focus (down z)
       in  case modifyM tDelete z of
             Just z' -> B.continue (State z' (Normal (t:yanked)) (Just s))
             Nothing -> B.continue s
     -- Paste task(s) above.
     V.KChar 'P' ->
       -- We compose functions that successively insert trees.
-      let f = foldl ((.)) id (tInsLeft <$> (reverse yanked))
+      let f = foldl (.) id (tInsLeft <$> reverse yanked)
           z' = modify f z
       in  B.continue (State z' (Normal []) (Just s))
     V.KChar 'p' ->
       -- We compose functions that successively insert trees.
-      let f = foldl ((.)) id (tInsRight <$> yanked)
+      let f = foldl (.) id (tInsRight <$> yanked)
           z' = modify f z
       in  B.continue (State z' (Normal []) (Just s))
     -- Toggle the focus' status.

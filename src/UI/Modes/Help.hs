@@ -3,6 +3,7 @@ module UI.Modes.Help
   , render
   ) where
 
+import qualified Data.Maybe as M (maybe)
 import qualified Brick.AttrMap as B (attrName)
 import qualified Brick.Main as B (continue)
 import qualified Brick.Types as B
@@ -39,9 +40,7 @@ handle s (B.VtyEvent e) = case e of
     where
       z = zipper s
       p = prev s
-      m = case mode <$> p of
-        Just m' -> m'
-        Nothing -> Normal []
+      m = M.maybe (Normal []) mode p
   _ -> B.continue s
 handle s _ = B.continue s
 
@@ -75,15 +74,15 @@ helpMenu =
             , ("Esc"   , "Normal mode"         )
             , ("q"     , "Quit"                )
             ]
-      inputs = (B.str . fst) <$> doc
-      actions = (B.str . snd) <$> doc
+      inputs = B.str . fst <$> doc
+      actions = B.str . snd <$> doc
       label = B.withAttr (B.attrName "special") (B.str "Controls")
       menu =
         ( B.padRight B.Max
         . B.withAttr (B.attrName "special")
         . B.hLimit 8 . B.vBox
         ) inputs
-        B.<+> (B.vBox actions)
+        B.<+> B.vBox actions
   in  ( B.center
       . B.hLimit 80
       . B.borderWithLabel label

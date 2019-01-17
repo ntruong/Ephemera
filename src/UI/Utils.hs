@@ -52,21 +52,21 @@ moveFocusM f s = case modifyM f (zipper s) of
 
 -- | Move a text editor to the last possible character.
 lastEdit :: B.Editor T.Text n -> B.Editor T.Text n
-lastEdit ed = B.applyEdit f ed
+lastEdit = B.applyEdit f
   where
     f z = T.moveCursor (row, col) z
       where
         text = T.getText z
-        row  = max 0 ((length text) - 1)
+        row  = max 0 (length text - 1)
         col  = (T.length . last) text
 
 -- | Render a note as a title.
 renderTitle :: Tree Note -> B.Widget n
 renderTitle node =
   let note = root node
-      n = case ((T.length . name) note) > 0 of
-        True  -> B.txtWrap (name note)
-        False -> B.txt (T.pack " ")
+      n = if   (T.length . name) note > 0
+          then B.txtWrap (name note)
+          else (B.txt . T.pack) " "
       d = (renderDate . date) note
       s = (renderStatus . status) note
       p = (renderPriority . priority) note
@@ -74,7 +74,7 @@ renderTitle node =
   in  B.padRight (B.Pad 1) s
       B.<+> B.padRight B.Max n
       B.<+> p
-      B.<+> (B.padLeft (B.Pad 1) d)
+      B.<+> B.padLeft (B.Pad 1) d
       B.<=> B.withAttr (B.attrName "progress") c
 
 -- | Render a Tree's children, given rendering functions.
@@ -85,14 +85,14 @@ renderChildren
   -> B.Widget Resource
 renderChildren _ _ (Leaf _) = B.emptyWidget
 renderChildren f g (Branch _ lSibs focused rSibs) =
-  let lSibs' = f <$> (reverse lSibs)
+  let lSibs' = f <$> reverse lSibs
       focused' = (B.visible . g) focused
       rSibs' = f <$> rSibs
-      children = (B.vBox lSibs') B.<=> focused' B.<=> (B.vBox rSibs')
+      children = B.vBox lSibs' B.<=> focused' B.<=> B.vBox rSibs'
   in  B.viewport Viewport B.Vertical children
 
 -- | Render a date.
-renderDate :: Maybe (T.Text) -> B.Widget n
+renderDate :: Maybe T.Text -> B.Widget n
 renderDate (Just x) = (B.txt . T.cons '@') x
 renderDate Nothing  = B.emptyWidget
 
