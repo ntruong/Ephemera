@@ -8,7 +8,7 @@ import qualified Data.Text as T (Text, intercalate, null, pack)
 import qualified Brick.AttrMap as B (attrName)
 import qualified Brick.Main as B (continue, halt)
 import qualified Brick.Types as B
-  (BrickEvent(..)
+  ( BrickEvent(..)
   , EventM
   , Next
   , Padding(..)
@@ -29,7 +29,6 @@ import qualified Brick.Widgets.Core as B
   )
 import qualified Brick.Widgets.Edit as B
   ( getEditContents
-  , editorText
   , handleEditorEvent
   , renderEditor
   )
