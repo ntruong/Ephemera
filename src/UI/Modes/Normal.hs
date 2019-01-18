@@ -27,6 +27,7 @@ import qualified Brick.Widgets.Core as B
   )
 import qualified Brick.Widgets.Edit as B (editorText)
 import qualified Graphics.Vty.Input.Events as V (Event(..), Key(..))
+import qualified Core.FList as F (empty)
 import Core.Tree
 import Core.Types
   ( Field(..)
@@ -127,6 +128,10 @@ handle s (B.VtyEvent e) = case e of
     V.KChar '=' ->
       let z' = modify (tReverse . tSortOn (priority . root)) z
       in  B.continue (State z' m (Just s))
+    -- Search using regex matching against title + desc.
+    V.KChar '/' ->
+      let ed = B.editorText Editor (Just 1) T.empty
+      in  B.continue (State z (List F.empty ed) p)
     -- Undo the last modification.
     V.KChar 'u' -> case p of
       Just s' -> B.continue s'

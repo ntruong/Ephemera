@@ -11,6 +11,7 @@ module Core.Types
 
 import qualified Data.Text as T (Text, empty)
 import qualified Brick.Widgets.Edit as B (Editor)
+import Core.FList (FList)
 import Core.Tree (Tree)
 import Core.Zipper (Zipper)
 
@@ -31,6 +32,7 @@ data Resource = Viewport
 -- | The different modes the application is allowed to have.
 data Mode = Normal [Tree Note]
           | Edit Field (B.Editor T.Text Resource)
+          | List (FList (Zipper Note)) (B.Editor T.Text Resource)
           | Help
 
 -- | The different editable fields for a note (should be all of them).

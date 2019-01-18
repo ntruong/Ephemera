@@ -70,6 +70,7 @@ helpMenu =
             , ("Space" , "Toggle status"       )
             , ("!"     , "Sort on date"        )
             , ("="     , "Sort on priority"    )
+            , ("/"     , "Search"              )
             , ("u"     , "Undo"                )
             , ("Esc"   , "Normal mode"         )
             , ("q"     , "Quit"                )

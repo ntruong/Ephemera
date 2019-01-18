@@ -6,11 +6,14 @@ module Core.Zipper
   , down
   , left
   , right
+  , top
+  , list
   , modify
   , modifyA
   , modifyM
   ) where
 
+import qualified Data.Maybe as M (fromMaybe)
 import Core.Tree
 
 -- | Context saves the state of the rest of the tree, relative to the focus.
@@ -54,6 +57,23 @@ right (Zipper _ (Path _ _ _ [])) = Nothing
 right (Zipper focused (Path path a lSibs (r:rSibs))) =
   let z = Zipper r (Path path a (focused:lSibs) rSibs)
   in  Just z
+
+-- | Move to the root of the zipper.
+top :: Zipper a -> Zipper a
+top z = M.fromMaybe z (up z)
+
+-- | Get (sub)zippers matching a given filtering function.
+list :: Zipper a -> [Zipper a]
+list z@(Zipper t@(Leaf _) _) = [z]
+list z@(Zipper t@(Branch a lSibs focused rSibs) ctx) =
+  let makeZip (t, l, r) = Zipper t (Path ctx a l r)
+      splitAround (i, xs) =
+        let (beg, end) = splitAt i xs
+        in  (last beg, init beg, end)
+      children = reverse lSibs ++ [focused] ++ rSibs
+      childZips = makeZip . splitAround
+        <$> zip [1..(length children)] (repeat children)
+  in  z : concat (list <$> childZips)
 
 -- | Modify the focused tree.
 modify :: (Tree a -> Tree a) -> Zipper a -> Zipper a
