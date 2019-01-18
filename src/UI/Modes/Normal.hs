@@ -131,7 +131,7 @@ handle s (B.VtyEvent e) = case e of
     -- Search using regex matching against title + desc.
     V.KChar '/' ->
       let ed = B.editorText Editor (Just 1) T.empty
-      in  B.continue (State z (List F.empty ed) p)
+      in  B.continue (State z (List F.empty ed) (Just s))
     -- Undo the last modification.
     V.KChar 'u' -> case p of
       Just s' -> B.continue s'
