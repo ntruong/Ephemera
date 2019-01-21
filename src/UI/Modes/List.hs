@@ -3,15 +3,26 @@ module UI.Modes.List
   , render
   ) where
 
-import qualified Data.Maybe as M (fromMaybe, maybe)
+import qualified Control.Monad as M (filterM)
+import qualified Control.Monad.IO.Class as M (liftIO)
+import qualified Data.Either as E (either)
+import qualified Data.Maybe as M (isJust, maybe)
 import qualified Data.Text as T
   ( append
   , concat
   , cons
   , empty
   , intercalate
+  , pack
   , reverse
   , take
+  )
+import qualified Data.Text.Encoding as T (encodeUtf8)
+import qualified Text.Regex.PCRE.ByteString as R
+  ( compExtended
+  , compile
+  , execBlank
+  , execute
   )
 import qualified Brick.AttrMap as B (attrName)
 import qualified Brick.Main as B (continue)
@@ -47,7 +58,7 @@ import qualified Graphics.Vty.Input.Events as V (Event(..), Key(..))
 import qualified Core.FList as F (FList(..), empty, focus, left, list, right)
 import Core.Tree (root)
 import Core.Types (Mode(..), Note(..), Resource(..), State(..))
-import Core.Zipper (Ctx(..), Zipper(..), focus, list, top, up)
+import Core.Zipper (focus, list, top, up)
 import qualified UI.Modes.Normal as N (render)
 import UI.Utils
 
@@ -59,16 +70,33 @@ handle s (B.VtyEvent e) = case e of
     V.KUp -> B.continue (State z (List (F.left flist) ed) p)
     V.KEnter -> B.continue (M.maybe s (\z' -> State z' m p) (F.focus flist))
     _ -> do
+      let txtBS = T.encodeUtf8 . T.concat . B.getEditContents
+          matchR eitherRegexp text =
+            E.either
+            -- If the regex doesn't compile, we fail with IO Bool.
+            (return . const False)
+            -- If the regex compiles, we have to execute the regex and check for
+            -- a match.
+            ( fmap (E.either (const False) M.isJust)
+            . flip R.execute (T.encodeUtf8 text)
+            )
+            eitherRegexp
+          possible = (list . top) z
+          noteBS note = name note
+            `T.append` T.pack " "
+            `T.append` desc note
+          makeFList xs = if null xs
+                         then F.empty
+                         else F.FList [] (Just (head xs)) (tail xs)
       ed' <- B.handleEditorEvent e ed
-      let txt = (T.concat . B.getEditContents) ed'
-          regex = undefined -- compile some regexp here
-          -- match against regex, e.g. match "r/.../g" . ?getText . root . focus
-          f = const True
-          zips = (filter f . list . top) z
-          flist' = if   null zips
-                   then F.empty
-                   else F.FList [] (Just (head zips)) (tail zips)
-      B.continue (State z (List flist' ed') p)
+      eRegexp <- ( M.liftIO
+                 . R.compile R.compExtended R.execBlank
+                 . txtBS
+                 ) ed'
+      zips <- ( M.liftIO
+              . M.filterM (matchR eRegexp . noteBS . root . focus)
+              ) possible
+      B.continue (State z (List (makeFList zips) ed') p)
     where
       z = zipper s
       p = prev s

@@ -13,7 +13,7 @@ module Core.Zipper
   , modifyM
   ) where
 
-import qualified Data.Maybe as M (fromMaybe)
+import qualified Data.Maybe as M (maybe)
 import Core.Tree
 
 -- | Context saves the state of the rest of the tree, relative to the focus.
@@ -60,7 +60,7 @@ right (Zipper focused (Path path a lSibs (r:rSibs))) =
 
 -- | Move to the root of the zipper.
 top :: Zipper a -> Zipper a
-top z = M.fromMaybe z (up z)
+top z = M.maybe z top (up z)
 
 -- | Get (sub)zippers matching a given filtering function.
 list :: Zipper a -> [Zipper a]

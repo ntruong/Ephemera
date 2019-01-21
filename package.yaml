@@ -25,6 +25,7 @@ dependencies:
 - brick
 - bytestring
 - directory
+- regex-pcre
 - text
 - text-zipper
 - transformers
