@@ -1,9 +1,7 @@
 module Main where
 
-import qualified Data.Text as T (empty, pack)
 import qualified Brick.Main as B (App(..), defaultMain, showFirstCursor)
 import qualified Brick.Themes as B (themeToAttrMap)
-import qualified Brick.Widgets.Edit as B (editorText)
 import Core.Types (State, createState)
 import IO.Data (decode)
 import UI.Handle (handle)

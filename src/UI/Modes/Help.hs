@@ -17,13 +17,11 @@ import qualified Brick.Widgets.Center as B (center)
 import qualified Brick.Widgets.Border as B (borderWithLabel)
 import qualified Brick.Widgets.Core as B
   ( (<+>)
-  , fill
   , hLimit
   , padLeftRight
   , padRight
   , str
   , vBox
-  , vLimit
   , withAttr
   )
 import qualified Graphics.Vty.Input.Events as V (Event(..), Key(..))

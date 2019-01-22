@@ -6,7 +6,7 @@ module UI.Modes.Edit
 import qualified Data.Maybe as M (maybe)
 import qualified Data.Text as T (Text, intercalate, null, pack)
 import qualified Brick.AttrMap as B (attrName)
-import qualified Brick.Main as B (continue, halt)
+import qualified Brick.Main as B (continue)
 import qualified Brick.Types as B
   ( BrickEvent(..)
   , EventM
@@ -18,7 +18,6 @@ import qualified Brick.Widgets.Center as B (hCenter)
 import qualified Brick.Widgets.Core as B
   ( (<+>)
   , (<=>)
-  , emptyWidget
   , hLimit
   , padBottom
   , padLeft

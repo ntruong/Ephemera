@@ -5,7 +5,7 @@ module UI.Modes.Normal
 
 import qualified Control.Monad.IO.Class as M (liftIO)
 import qualified Data.Maybe as M (maybe)
-import qualified Data.Text as T (cons, empty)
+import qualified Data.Text as T (empty)
 import qualified Brick.AttrMap as B (attrName)
 import qualified Brick.Main as B (continue, halt)
 import qualified Brick.Types as B
@@ -17,9 +17,7 @@ import qualified Brick.Types as B
   )
 import qualified Brick.Widgets.Center as B (hCenter)
 import qualified Brick.Widgets.Core as B
-  ( (<+>)
-  , (<=>)
-  , hLimit
+  ( hLimit
   , padBottom
   , txtWrap
   , vBox

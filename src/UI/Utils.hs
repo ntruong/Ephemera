@@ -1,6 +1,6 @@
 module UI.Utils where
 
-import qualified Data.Text as T (Text, cons, intercalate, length, pack)
+import qualified Data.Text as T (Text, cons, length, pack)
 import qualified Data.Text.Zipper as T (getText, moveCursor)
 import qualified Brick.AttrMap as B (attrName)
 import qualified Brick.Main as B (continue)
@@ -26,9 +26,9 @@ import qualified Brick.Widgets.Core as B
   , withAttr
   )
 import qualified Brick.Widgets.Edit as B (Editor, applyEdit)
-import Core.Tree (Tree(..), root, tLeft, tLeftmost, tRight, tRightmost)
+import Core.Tree (Tree(..), root)
 import Core.Types (Mode(..), Note(..), Priority(..), Resource(..), State(..))
-import Core.Zipper (Zipper, down, up, modifyM)
+import Core.Zipper (Zipper, modifyM)
 
 -- | Continue a given zipper from a previous state.
 continueZipper :: State -> Zipper Note -> B.EventM Resource (B.Next State)

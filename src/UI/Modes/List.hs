@@ -55,11 +55,10 @@ import qualified Brick.Widgets.Edit as B
   , renderEditor
   )
 import qualified Graphics.Vty.Input.Events as V (Event(..), Key(..))
-import qualified Core.FList as F (FList(..), empty, focus, left, list, right)
+import qualified Core.FList as F (FList(..), empty, focus, left, right)
 import Core.Tree (root)
 import Core.Types (Mode(..), Note(..), Resource(..), State(..))
 import Core.Zipper (focus, list, top, up)
-import qualified UI.Modes.Normal as N (render)
 import UI.Utils
 
 handle :: State -> B.BrickEvent Resource e -> B.EventM Resource (B.Next State)
