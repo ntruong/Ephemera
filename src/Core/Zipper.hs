@@ -69,7 +69,7 @@ list z@(Zipper t@(Branch a lSibs focused rSibs) ctx) =
   let makeZip (t, l, r) = Zipper t (Path ctx a l r)
       splitAround (i, xs) =
         let (beg, end) = splitAt i xs
-        in  (last beg, init beg, end)
+        in  (last beg, (reverse . init) beg, end)
       children = reverse lSibs ++ [focused] ++ rSibs
       childZips = makeZip . splitAround
         <$> zip [1..(length children)] (repeat children)
