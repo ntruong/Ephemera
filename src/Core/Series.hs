@@ -17,7 +17,10 @@ instance Focused Series where
   extract (Series a _ _) = a
 
 instance Serial Series where
-  serialize a (b:bs) = Series a Nothing (Just $ serialize b bs)
+  serialize a (b:bs) = Series a Nothing (Just next)
+    where
+      (Series a' _ next') = serialize b bs
+      next = Series a' (Just $ serialize a []) next'
   serialize a [] = Series a Nothing Nothing
 
   deserialize (Series a Nothing Nothing) = [a]
@@ -39,7 +42,10 @@ backwards series = series
 
 -- | Move forward in the series if possible.
 forwards :: Series a -> Series a
-forwards (Series _ _ (Just next)) = next
+forwards series@(Series _ _ (Just next)) = series'
+  where
+    (Series a _ next') =  next
+    series' = Series a (Just series) next'
 forwards series = series
 
 -- | Create a new series from data.
