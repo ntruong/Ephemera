@@ -4,11 +4,13 @@ import Data.Maybe (maybe)
 import Data.Text (Text, empty, intercalate)
 
 import Brick.Types (Padding(Pad), Widget)
+import Brick.Widgets.Border (border)
 import Brick.Widgets.Core
   ( (<+>)
   , (<=>)
   , emptyWidget
   , padBottom
+  , padLeftRight
   , str
   , txt
   , visible
@@ -27,7 +29,12 @@ render results editor _ = [frame search]
   where
     wEditor = str "/" <+> renderEditor (txt . intercalate empty) True editor
     wResults = maybe emptyWidget renderSeries results
-    search = padBottom (Pad 1) wEditor <=> wResults
+    search =
+      ( padBottom (Pad 1)
+      . border
+      . padLeftRight 1
+      ) wEditor
+      <=> wResults
 
 croppedZipper :: Zipper Note -> Widget Resource
 croppedZipper = vLimit 7 . renderZipper
