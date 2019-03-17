@@ -1,22 +1,24 @@
 module Main where
 
-import qualified Brick.Main as B (App(..), defaultMain, showFirstCursor)
-import qualified Brick.Themes as B (themeToAttrMap)
-import Core.Types (State, createState)
+import Brick.Main (App(..), defaultMain, showFirstCursor)
+import Brick.Themes (themeToAttrMap)
+import Core.Series (new)
+import Core.Types (State)
 import IO.Data (decode)
-import UI.Handle (handle)
-import UI.Render (render)
+import UI.App (render, handle)
+import UI.Handlers (normal)
 import UI.Theme (theme)
+import qualified UI.Views.Normal as Normal (render)
 
 main :: IO State
 main = do
   z <- decode
-  let s = createState z
-      app = B.App {
-        B.appDraw = render
-      , B.appChooseCursor = B.showFirstCursor
-      , B.appHandleEvent = handle
-      , B.appStartEvent = return
-      , B.appAttrMap = (const . B.themeToAttrMap) theme
+  let s = (new z, Normal.render, normal [])
+      app = App {
+        appDraw = render
+      , appChooseCursor = showFirstCursor
+      , appHandleEvent = handle
+      , appStartEvent = return
+      , appAttrMap = (const . themeToAttrMap) theme
       }
-  B.defaultMain app s
+  defaultMain app s

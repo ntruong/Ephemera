@@ -1,65 +1,98 @@
 module Core.Types
-  ( State(..)
+  ( State
+  , Notes
+  , View
+  , Handler(..)
   , Resource(..)
-  , Mode(..)
-  , Field(..)
   , Note(..)
   , Priority(..)
-  , createState
-  , empty
+  , editName
+  , editDesc
+  , editDate
+  , toggleNote
+  , decrNote
+  , incrNote
+  , blank
   ) where
 
-import qualified Data.Text as T (Text, empty)
-import qualified Brick.Widgets.Edit as B (Editor)
-import Core.FList (FList)
+import Data.Text (Text, empty)
+
+import Brick.Types (BrickEvent, EventM, Next, Widget)
+import Brick.Widgets.Edit (Editor)
+
+import Core.Series (Series)
 import Core.Tree (Tree)
 import Core.Zipper (Zipper)
 
--- | Represent the state of application. We use a zipper of notes, the current
--- mode of the application, an editor (for text interaction with the user), and
--- perhaps the previous state.
-data State = State
-  { zipper :: Zipper Note
-  , mode   :: Mode
-  , prev   :: Maybe State
+-- | Represent the state of the application as a mode with a series of zippers.
+type Notes = Series (Zipper Note)
+-- | Handler class; given a state and event, generate a new state and handler.
+newtype Handler = Handler
+  { handler
+      :: Notes
+      -> BrickEvent Resource ()
+      -> EventM Resource (Next State)
   }
+-- | View class; wrapper for Brick widgets.
+type View = Notes -> [Widget Resource]
+-- | Overall state of the application.
+type State = (Notes, View, Handler)
 
 -- | Resource names.
-data Resource = Viewport
-              | Editor
-              deriving (Eq, Ord, Show)
-
--- | The different modes the application is allowed to have.
-data Mode = Normal [Tree Note]
-          | Edit Field (B.Editor T.Text Resource)
-          | List (FList (Zipper Note)) (B.Editor T.Text Resource)
-          | Help
-
--- | The different editable fields for a note (should be all of them).
-data Field = Name
-           | Desc
-           | Date
+data Resource
+  = Viewport
+  | Editor
+  deriving (Eq, Ord, Show)
 
 -- | All the information a note should contain.
 data Note = Note
-  { name :: T.Text
-  , desc :: T.Text
-  , date :: Maybe T.Text -- TODO(ntruong): change this to Data.DateTime
-  , status :: Bool
+  { name     :: Text
+  , desc     :: Text
+  , date     :: Text
+  , status   :: Bool
   , priority :: Priority
   }
 
 -- | Priority for a note.
-data Priority = None
-              | Low
-              | Mid
-              | High
-              deriving (Enum, Eq, Ord)
+data Priority
+  = None
+  | Low
+  | Mid
+  | High
+  deriving (Bounded, Enum, Eq, Ord)
 
--- | Creates a starting state from a given zipper.
-createState :: Zipper Note -> State
-createState z = State z (Normal []) Nothing
+-- | Update a note's name.
+editName :: Text -> Note -> Note
+editName text (Note _ desc date status priority) =
+  Note text desc date status priority
+
+-- | Update a note's description.
+editDesc :: Text -> Note -> Note
+editDesc text (Note name _ date status priority) =
+  Note name text date status priority
+
+-- | Update a note's date.
+editDate :: Text -> Note -> Note
+editDate text (Note name desc _ status priority) =
+  Note name desc text status priority
+
+-- | Toggle note status.
+toggleNote :: Note -> Note
+toggleNote (Note name desc date status priority) =
+  Note name desc date (not status) priority
+
+-- | Decrease note priority.
+decrNote :: Note -> Note
+decrNote (Note name desc date status priority) =
+  let priority' = if priority == minBound then minBound else pred priority
+  in  Note name desc date status priority'
+
+-- | Increase note priority.
+incrNote :: Note -> Note
+incrNote (Note name desc date status priority) =
+  let priority' = if priority == maxBound then maxBound else succ priority
+  in  Note name desc date status priority'
 
 -- | An empty note.
-empty :: Note
-empty = Note T.empty T.empty Nothing False None
+blank :: Note
+blank = Note empty empty empty False None

@@ -1,11 +1,9 @@
-module UI.Theme
-  ( theme
-  ) where
+module UI.Theme (theme) where
 
-import qualified Brick.AttrMap as B (attrName)
-import qualified Brick.Themes as B (Theme, newTheme)
-import qualified Brick.Util as B (fg)
-import qualified Graphics.Vty.Attributes as V
+import Brick.AttrMap (attrName)
+import Brick.Themes (Theme, newTheme)
+import Brick.Util (fg)
+import Graphics.Vty.Attributes
   ( black
   , red
   , green
@@ -18,15 +16,15 @@ import qualified Graphics.Vty.Attributes as V
 
 -- | The theme of the application. TODO(ntruong) make this configurable in the
 -- config.ini file.
-theme :: B.Theme
+theme :: Theme
 theme =
-  let attrs = [ (B.attrName "title",     B.fg V.cyan)
-              , (B.attrName "special",   B.fg V.magenta)
-              , (B.attrName "focused",   B.fg V.magenta)
-              , (B.attrName "unfocused", B.fg V.white)
-              , (B.attrName "progress",  B.fg V.yellow)
-              , (B.attrName "low",       B.fg V.green)
-              , (B.attrName "mid",       B.fg V.yellow)
-              , (B.attrName "high",      B.fg V.red)
+  let attrs = [ (attrName "title",     fg cyan)
+              , (attrName "special",   fg magenta)
+              , (attrName "focused",   fg magenta)
+              , (attrName "unfocused", fg white)
+              , (attrName "progress",  fg yellow)
+              , (attrName "low",       fg green)
+              , (attrName "mid",       fg yellow)
+              , (attrName "high",      fg red)
               ]
-  in B.newTheme (B.fg V.white) attrs
+  in newTheme (fg white) attrs
