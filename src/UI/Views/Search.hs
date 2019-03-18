@@ -9,7 +9,6 @@ import Brick.Widgets.Core
   ( (<+>)
   , (<=>)
   , emptyWidget
-  , padBottom
   , padLeftRight
   , str
   , txt
@@ -30,8 +29,7 @@ render results editor _ = [anchor wSearch wResults]
     wEditor = str "/" <+> renderEditor (txt . intercalate empty) True editor
     wResults = maybe emptyWidget renderSeries results
     wSearch =
-      ( padBottom (Pad 1)
-      . border
+      ( border
       . padLeftRight 1
       ) wEditor
 
