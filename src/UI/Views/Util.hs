@@ -40,7 +40,7 @@ color :: String -> Widget Resource -> Widget Resource
 color name = withAttr (attrName name)
 
 anchor :: Widget Resource -> Widget Resource -> Widget Resource
-anchor a b = (hCenter . hLimit 80) (a <=> view b)
+anchor a b = (hCenter . hLimit 80) (padBottom (Pad 1) a <=> view b)
   where
     view = padLeftRight 2 . viewport Viewport Vertical
 
@@ -48,7 +48,7 @@ renderFocus :: (Tree Note -> Widget Resource) -> View
 renderFocus f notes = [context]
   where
     (Zipper focused ctx) = extract notes
-    wNote attr = color attr . padTop (Pad 1)
+    wNote attr = color attr . padBottom (Pad 1)
     wFocused = (visible . wNote "focused" . f) focused
     context = case ctx of
       Root -> (hCenter . hLimit 80 . padLeftRight 2) wFocused
