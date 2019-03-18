@@ -1,6 +1,6 @@
 module UI.Views.Util
-  ( color
-  , frame
+  ( anchor
+  , color
   , renderFocus
   , renderTree
   , renderZipper
@@ -39,26 +39,27 @@ import Core.Zipper (Ctx(..), Zipper(..), root)
 color :: String -> Widget Resource -> Widget Resource
 color name = withAttr (attrName name)
 
-frame :: Widget Resource -> Widget Resource
-frame = hCenter . hLimit 80 . viewport Viewport Vertical
+anchor :: Widget Resource -> Widget Resource -> Widget Resource
+anchor a b = (hCenter . hLimit 80) (a <=> view b)
+  where
+    view = padLeftRight 2 . viewport Viewport Vertical
 
 renderFocus :: (Tree Note -> Widget Resource) -> View
-renderFocus f notes = [frame context]
+renderFocus f notes = [context]
   where
     (Zipper focused ctx) = extract notes
-    narrow = hCenter . hLimit 76
     wNote attr = color attr . padTop (Pad 1)
     wFocused = (visible . wNote "focused" . f) focused
     context = case ctx of
-      Root -> narrow wFocused
-      (Path ctx' a lSibs rSibs) ->
-        ( color "focused"
-        . border
-        . padLeftRight 1
-        . renderTree
-        ) (Branch a lSibs focused rSibs)
-        <=> narrow children
+      Root -> (hCenter . hLimit 80 . padLeftRight 2) wFocused
+      (Path ctx' a lSibs rSibs) -> anchor parent children
         where
+          parent =
+            ( color "focused"
+            . border
+            . padLeftRight 1
+            . renderTree
+            ) (Branch a lSibs focused rSibs)
           children =
             vBox (wNote "unfocused" . renderTree <$> reverse lSibs)
             <=> wFocused

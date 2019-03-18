@@ -22,19 +22,18 @@ import Core.Focused (Focused(..))
 import Core.Series (Series(..))
 import Core.Types (Note, Resource, View)
 import Core.Zipper (Zipper, root)
-import UI.Views.Util (color, frame, renderTree, renderZipper)
+import UI.Views.Util (anchor, color, renderTree, renderZipper)
 
 render :: Maybe (Series (Zipper Note)) -> Editor Text Resource -> View
-render results editor _ = [frame search]
+render results editor _ = [anchor wSearch wResults]
   where
     wEditor = str "/" <+> renderEditor (txt . intercalate empty) True editor
     wResults = maybe emptyWidget renderSeries results
-    search =
+    wSearch =
       ( padBottom (Pad 1)
       . border
       . padLeftRight 1
       ) wEditor
-      <=> wResults
 
 croppedZipper :: Zipper Note -> Widget Resource
 croppedZipper = vLimit 7 . renderZipper
