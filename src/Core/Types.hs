@@ -5,10 +5,8 @@ module Core.Types
   , Handler(..)
   , Resource(..)
   , Note(..)
+  , EditNote(..)
   , Priority(..)
-  , editName
-  , editDesc
-  , editDate
   , toggleNote
   , decrNote
   , incrNote
@@ -53,6 +51,15 @@ data Note = Note
   , priority :: Priority
   }
 
+-- | Edit mode note; the various text fields may be editors.
+data EditNote = EditNote
+  { eName     :: Either Text (Editor Text Resource)
+  , eDesc     :: Either Text (Editor Text Resource)
+  , eDate     :: Either Text (Editor Text Resource)
+  , eStatus   :: Bool
+  , ePriority :: Priority
+  }
+
 -- | Priority for a note.
 data Priority
   = None
@@ -60,21 +67,6 @@ data Priority
   | Mid
   | High
   deriving (Bounded, Enum, Eq, Ord)
-
--- | Update a note's name.
-editName :: Text -> Note -> Note
-editName text (Note _ desc date status priority) =
-  Note text desc date status priority
-
--- | Update a note's description.
-editDesc :: Text -> Note -> Note
-editDesc text (Note name _ date status priority) =
-  Note name text date status priority
-
--- | Update a note's date.
-editDate :: Text -> Note -> Note
-editDate text (Note name desc _ status priority) =
-  Note name desc text status priority
 
 -- | Toggle note status.
 toggleNote :: Note -> Note

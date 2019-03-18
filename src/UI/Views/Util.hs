@@ -1,6 +1,7 @@
 module UI.Views.Util
   ( color
   , frame
+  , renderFocus
   , renderTree
   , renderZipper
   ) where
@@ -18,6 +19,7 @@ import Brick.Widgets.Core
   , hLimit
   , padBottom
   , padLeft
+  , padLeftRight
   , padRight
   , padTop
   , str
@@ -25,13 +27,14 @@ import Brick.Widgets.Core
   , txtWrap
   , vBox
   , viewport
+  , visible
   , withAttr
   )
 
 import Core.Focused (Focused(..))
 import Core.Tree (Tree(..))
-import Core.Types (Note(..), Priority(..), Resource(..))
-import Core.Zipper (Zipper, root)
+import Core.Types (EditNote(..), Note(..), Priority(..), Resource(..), View)
+import Core.Zipper (Ctx(..), Zipper(..), root)
 
 color :: String -> Widget Resource -> Widget Resource
 color name = withAttr (attrName name)
@@ -39,13 +42,35 @@ color name = withAttr (attrName name)
 frame :: Widget Resource -> Widget Resource
 frame = hCenter . hLimit 80 . viewport Viewport Vertical
 
+renderFocus :: (Tree Note -> Widget Resource) -> View
+renderFocus f notes = [frame context]
+  where
+    (Zipper focused ctx) = extract notes
+    narrow = hCenter . hLimit 76
+    wNote attr = color attr . padTop (Pad 1)
+    wFocused = (visible . wNote "focused" . f) focused
+    context = case ctx of
+      Root -> narrow wFocused
+      (Path ctx' a lSibs rSibs) ->
+        ( color "focused"
+        . border
+        . padLeftRight 1
+        . renderTree
+        ) (Branch a lSibs focused rSibs)
+        <=> narrow children
+        where
+          children =
+            vBox (wNote "unfocused" . renderTree <$> reverse lSibs)
+            <=> wFocused
+            <=> vBox (wNote "unfocused" . renderTree <$> rSibs)
+
 renderTree :: Tree Note -> Widget Resource
 renderTree tree = note
   where
     (Note name' desc' date' status' priority') = extract tree
     wName     = txtWrap $ if T.null name' then T.pack " " else name'
-    wDate     = if T.null date' then emptyWidget else txt $ T.cons '@' date'
     wDesc     = txtWrap desc'
+    wDate     = if T.null date' then emptyWidget else txt $ T.cons '@' date'
     wStatus   = str $ if status' then "[✓]" else "[ ]"
     wPriority = case priority' of
       None -> emptyWidget

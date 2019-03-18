@@ -1,5 +1,6 @@
 module UI.Handlers (normal) where
 
+import qualified Control.Arrow as A (right)
 import Control.Monad (filterM)
 import Control.Monad.IO.Class (liftIO)
 import Data.Either (either)
@@ -42,12 +43,10 @@ import Core.Tree (Tree(..))
 import Core.Types
   ( Handler(..)
   , Note(..)
+  , EditNote(..)
   , Notes
   , Resource(..)
   , View
-  , editName
-  , editDesc
-  , editDate
   , toggleNote
   , decrNote
   , incrNote
@@ -116,9 +115,9 @@ normal yanked = Handler handler
         )
       'u' -> continue (backwards notes, Normal.render, normal')
       'r' -> continue (forwards notes,  Normal.render, normal')
-      'i' -> editor editName name 1
-      'a' -> editor editDesc desc 10
-      '@' -> editor editDate date 1
+      'i' -> editor editName
+      'a' -> editor editDesc
+      '@' -> editor editDate
       ' ' -> update (toggleNote <.>)
       '-' -> update (decrNote <.>)
       '+' -> update (incrNote <.>)
@@ -138,14 +137,28 @@ normal yanked = Handler handler
             text = T.getText z
             row  = max 0 (length text - 1)
             col  = (T.length . last) text
-        editor editF f n = continue
-          ( notes
-          , Edit.render id
-          , edit yanked editF
-            ( applyEdit moveToEnd $
-              editorText Editor (Just n) ((f . extract . extract) notes)
-            )
-          )
+        loadEditor field n =
+          applyEdit moveToEnd $ editorText Editor (Just n) field
+        (Note name' desc' date' st' pr') = (extract . extract) notes
+        editName = EditNote
+          (Right $ loadEditor name' 1)
+          (Left desc')
+          (Left date')
+          st'
+          pr'
+        editDesc = EditNote
+          (Left name')
+          (Right $ loadEditor desc' 10)
+          (Left date')
+          st'
+          pr'
+        editDate = EditNote
+          (Left name')
+          (Left desc')
+          (Right $ loadEditor date' 1)
+          st'
+          pr'
+        editor field = continue (notes, Edit.render field, edit yanked field)
         results = uncurry serialize <$> (uncons . list . top . extract) notes
         ed = editorText Editor (Just 1) T.empty
 
@@ -184,29 +197,31 @@ preview yanked = Handler handler
 -- a provided update function (e.g. editName, etc).
 edit
   :: [Tree Note]
-  -> (T.Text -> Note -> Note)
-  -> Editor T.Text Resource
+  -> EditNote
   -> Handler
 
-edit yanked f editor = Handler handler
+edit yanked eNote@(EditNote eName eDesc eDate eSt ePr) = Handler handler
   where
     handler notes (VtyEvent vty@(EvKey key _)) = case key of
       KEsc -> continue
-        ( (makeEdit editor <.>) >>. notes
+        ( (const note <.>) >>. notes
         , Normal.render
         , normal yanked
         )
       _    -> do
-        editor' <- handleEditorEvent vty editor
-        continue (notes, Edit.render (makeEdit editor'), edit yanked f editor')
+        -- let handleEvent = A.right (handleEditorEvent vty)
+        let handleEvent (Right ed) = Right <$> handleEditorEvent vty ed
+            handleEvent field = pure field
+        eName' <- handleEvent eName
+        eDesc' <- handleEvent eDesc
+        eDate' <- handleEvent eDate
+        let eNote' = EditNote eName' eDesc' eDate' eSt ePr
+        continue (notes, Edit.render eNote', edit yanked eNote')
 
-    handler notes _ = continue
-      ( notes
-      , Edit.render (makeEdit editor)
-      , edit yanked f editor
-      )
+    handler notes _ = continue (notes, Edit.render eNote, edit yanked eNote)
 
-    makeEdit = f . T.intercalate (T.pack "\n") . getEditContents
+    toText = either id (T.intercalate (T.pack "\n") . getEditContents)
+    note = Note (toText eName) (toText eDesc) (toText eDate) eSt ePr
 
 -- | Search mode handler; maintain a (zipper) of trees that match a regex.
 search
