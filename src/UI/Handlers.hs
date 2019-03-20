@@ -238,7 +238,7 @@ search yanked results editor = Handler handler
       KEnter -> case results of
         Nothing -> search' id
         Just x  -> continue
-          ( const (extract x) >>. notes
+          ( (const . down . extract) x >>. notes
           , Normal.render
           , normal'
           )
