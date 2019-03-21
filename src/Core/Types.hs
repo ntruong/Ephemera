@@ -7,16 +7,20 @@ module Core.Types
   , Note(..)
   , EditNote(..)
   , Priority(..)
+  , editName
+  , editDesc
+  , editDate
   , toggleNote
   , decrNote
   , incrNote
   , blank
   ) where
 
-import Data.Text (Text, empty)
+import qualified Data.Text as T (Text, empty, length)
+import qualified Data.Text.Zipper as T (getText, moveCursor)
 
 import Brick.Types (BrickEvent, EventM, Next, Widget)
-import Brick.Widgets.Edit (Editor)
+import Brick.Widgets.Edit (Editor, applyEdit, editorText)
 
 import Core.Series (Series)
 import Core.Tree (Tree)
@@ -44,18 +48,18 @@ data Resource
 
 -- | All the information a note should contain.
 data Note = Note
-  { name     :: Text
-  , desc     :: Text
-  , date     :: Text
+  { name     :: T.Text
+  , desc     :: T.Text
+  , date     :: T.Text
   , status   :: Bool
   , priority :: Priority
   }
 
 -- | Edit mode note; the various text fields may be editors.
 data EditNote = EditNote
-  { eName     :: Either Text (Editor Text Resource)
-  , eDesc     :: Either Text (Editor Text Resource)
-  , eDate     :: Either Text (Editor Text Resource)
+  { eName     :: Either T.Text (Editor T.Text Resource)
+  , eDesc     :: Either T.Text (Editor T.Text Resource)
+  , eDate     :: Either T.Text (Editor T.Text Resource)
   , eStatus   :: Bool
   , ePriority :: Priority
   }
@@ -67,6 +71,47 @@ data Priority
   | Mid
   | High
   deriving (Bounded, Enum, Eq, Ord)
+
+-- | Create an Editor from a Text with a given height and cursor on the last
+-- character.
+editor :: T.Text -> Int -> Editor T.Text Resource
+editor text n = applyEdit lastChar $ editorText Editor (Just n) text
+  where
+    lastChar textZipper = T.moveCursor (row, col) textZipper
+      where
+        zipperText = T.getText textZipper
+        row = max 0 (length zipperText - 1)
+        col = (T.length . last) zipperText
+
+-- | Turn a note into an editable note (with the name field).
+editName :: Note -> EditNote
+editName (Note name desc date status priority) =
+  EditNote
+  (Right $ editor name 1)
+  (Left desc)
+  (Left date)
+  status
+  priority
+
+-- | Turn a note into an editable note (with the desc field).
+editDesc :: Note -> EditNote
+editDesc (Note name desc date status priority) =
+  EditNote
+  (Left name)
+  (Right $ editor desc 10)
+  (Left date)
+  status
+  priority
+
+-- | Turn a note into an editable note (with the date field).
+editDate :: Note -> EditNote
+editDate (Note name desc date status priority) =
+  EditNote
+  (Left name)
+  (Left desc)
+  (Right $ editor date 1)
+  status
+  priority
 
 -- | Toggle note status.
 toggleNote :: Note -> Note
@@ -87,4 +132,4 @@ incrNote (Note name desc date status priority) =
 
 -- | An empty note.
 blank :: Note
-blank = Note empty empty empty False None
+blank = Note T.empty T.empty T.empty False None

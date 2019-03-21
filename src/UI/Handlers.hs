@@ -47,6 +47,9 @@ import Core.Types
   , Notes
   , Resource(..)
   , View
+  , editName
+  , editDesc
+  , editDate
   , toggleNote
   , decrNote
   , incrNote
@@ -115,9 +118,12 @@ normal yanked = Handler handler
         )
       'u' -> continue (backwards notes, Normal.render, normal')
       'r' -> continue (forwards notes,  Normal.render, normal')
-      'i' -> editor editName
-      'a' -> editor editDesc
-      '@' -> editor editDate
+      'i' -> editFocus editName
+      'a' -> editFocus editDesc
+      '@' -> editFocus editDate
+      'I' -> editCtx editName
+      'A' -> editCtx editDesc
+      '#' -> editCtx editDate
       ' ' -> update (toggleNote <.>)
       '-' -> update (decrNote <.>)
       '+' -> update (incrNote <.>)
@@ -132,33 +138,20 @@ normal yanked = Handler handler
       where
         move f = continue (f <.> notes, Normal.render, normal')
         update f = continue (f >>. notes, Normal.render, normal')
-        moveToEnd z = T.moveCursor (row, col) z
+        editFocus fEditNote = continue
+          ( notes
+          , Edit.render field
+          , edit yanked field
+          )
           where
-            text = T.getText z
-            row  = max 0 (length text - 1)
-            col  = (T.length . last) text
-        loadEditor field n =
-          applyEdit moveToEnd $ editorText Editor (Just n) field
-        (Note name' desc' date' st' pr') = (extract . extract) notes
-        editName = EditNote
-          (Right $ loadEditor name' 1)
-          (Left desc')
-          (Left date')
-          st'
-          pr'
-        editDesc = EditNote
-          (Left name')
-          (Right $ loadEditor desc' 10)
-          (Left date')
-          st'
-          pr'
-        editDate = EditNote
-          (Left name')
-          (Left desc')
-          (Right $ loadEditor date' 1)
-          st'
-          pr'
-        editor field = continue (notes, Edit.render field, edit yanked field)
+            field = fEditNote $ (extract . extract) notes
+        editCtx fEditNote = continue
+          ( up <.> notes
+          , Edit.render field
+          , edit yanked field
+          )
+          where
+            field = fEditNote $ (extract . up . extract) notes
         results = uncurry serialize <$> (uncons . list . top . extract) notes
         ed = editorText Editor (Just 1) T.empty
 
