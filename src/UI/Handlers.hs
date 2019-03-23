@@ -87,9 +87,7 @@ normal yanked = Handler handler
 
     handler notes (VtyEvent (EvKey (KChar key) _)) = case key of
       '?' -> continue (notes, Help.render, help yanked)
-      'q' -> do
-        liftIO $ (encode . extract) notes
-        halt (notes, Normal.render, normal')
+      'q' -> write id >> halt (notes, Normal.render, normal')
       'h' -> move up
       'j' -> move right
       'k' -> move left
@@ -101,21 +99,17 @@ normal yanked = Handler handler
       'O' -> update (left  . prepend emptyNode)
       'o' -> update (right . append  emptyNode)
       'd' -> update delete
-      'y' -> continue
+      'y' -> write delete >> continue
         ( delete >>. notes
         , Normal.render
         , normal ((root . extract) notes : yanked)
         )
-      'P' -> continue
-        ( foldl (.) id (prepend <$> reverse yanked) >>. notes
-        , Normal.render
-        , normal []
-        )
-      'p' -> continue
-        ( foldl (.) id (append <$> yanked) >>. notes
-        , Normal.render
-        , normal []
-        )
+      'P' -> write f >> continue (f >>. notes, Normal.render, normal [])
+        where
+          f = foldl (.) id (prepend <$> reverse yanked)
+      'p' -> write f >> continue (f >>. notes, Normal.render, normal [])
+        where
+          f = foldl (.) id (append <$> yanked)
       'u' -> continue (backwards notes, Normal.render, normal')
       'r' -> continue (forwards notes,  Normal.render, normal')
       'i' -> editFocus editName
@@ -137,7 +131,8 @@ normal yanked = Handler handler
       _   -> continue (notes, Normal.render, normal')
       where
         move f = continue (f <.> notes, Normal.render, normal')
-        update f = continue (f >>. notes, Normal.render, normal')
+        write f = liftIO $ (encode . f . extract) notes
+        update f = write f >> continue (f >>. notes, Normal.render, normal')
         editFocus fEditNote = continue
           ( notes
           , Edit.render field
@@ -196,11 +191,13 @@ edit
 edit yanked eNote@(EditNote eName eDesc eDate eSt ePr) = Handler handler
   where
     handler notes (VtyEvent vty@(EvKey key _)) = case key of
-      KEsc -> continue
-        ( (const note <.>) >>. notes
-        , Normal.render
-        , normal yanked
-        )
+      KEsc -> do
+        liftIO $ (encode . (const note <.>) . extract) notes
+        continue
+          ( (const note <.>) >>. notes
+          , Normal.render
+          , normal yanked
+          )
       _    -> do
         -- let handleEvent = A.right (handleEditorEvent vty)
         let handleEvent (Right ed) = Right <$> handleEditorEvent vty ed
