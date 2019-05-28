@@ -161,6 +161,18 @@ preview yanked = Handler handler
       'h' -> continue (notes, Normal.render, normal yanked)
       'o' -> makeBranch
       'O' -> makeBranch
+      'p' -> continue
+        ( const (down $ Zipper (Branch a [] (head yanked) (tail yanked)) ctx)
+            >>. notes
+        , Normal.render
+        , normal []
+        )
+      'P' -> continue
+        ( const (down $ Zipper (Branch a ((reverse . tail) yanked) (head yanked) []) ctx)
+            >>. notes
+        , Normal.render
+        , normal []
+        )
       'q' -> halt (notes, Normal.render, normal yanked)
       '/' -> continue
         ( notes
