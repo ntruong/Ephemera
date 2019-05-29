@@ -102,7 +102,7 @@ normal yanked = Handler handler
       'y' -> write delete >> continue
         ( delete >>. notes
         , Normal.render
-        , normal ((root . extract) notes : yanked)
+        , normal (yanked ++ [(root . extract) notes])
         )
       'P' -> write f >> continue (f >>. notes, Normal.render, normal [])
         where
