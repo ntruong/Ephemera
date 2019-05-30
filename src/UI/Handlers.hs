@@ -168,7 +168,9 @@ preview yanked = Handler handler
         , normal []
         )
       'P' -> continue
-        ( const (down $ Zipper (Branch a ((reverse . tail) yanked) (head yanked) []) ctx)
+        ( const (down $
+              Zipper (Branch a ((reverse . tail) yanked) (head yanked) []) ctx
+              )
             >>. notes
         , Normal.render
         , normal []
