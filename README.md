@@ -1,6 +1,6 @@
 # Ephemera
 
-A command-line todo list. Help can be accessed via `?`.
+A command-line todo list and note manager. Help can be accessed via `?`.
 
 ## Building
 
