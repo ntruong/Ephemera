@@ -3,7 +3,7 @@ version:             0.1.0.0
 github:              "ntruong/ephemera"
 license:             BSD3
 author:              "Nicholas Truong"
-maintainer:          "nt31415@gmail.com"
+maintainer:          "me@n-truong.com"
 copyright:           "2019 Nicholas Truong"
 
 extra-source-files:
